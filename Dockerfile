@@ -1,21 +1,25 @@
-# Imagen base completa de Python 3.11
+# Imagen base
 FROM python:3.11
 
-# Establecer directorio de trabajo
+# Directorio de trabajo
 WORKDIR /app
 
 # Copiar requirements
 COPY requirements.txt .
 
-# Instalar dependencias del sistema necesarias para pyodbc
+# Instalar dependencias de sistema y ODBC Driver 17
 RUN apt-get update \
     && apt-get install -y --no-install-recommends \
-       unixodbc-dev \
        curl \
        gnupg \
-       lsb-release \
        apt-transport-https \
        ca-certificates \
+       unixodbc-dev \
+       build-essential \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | apt-key add - \
+    && curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql17 \
     && rm -rf /var/lib/apt/lists/*
 
 # Instalar dependencias de Python
@@ -24,7 +28,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copiar todo el proyecto
 COPY . .
 
-# Exponer el puerto (ajusta si tu app Flask u otra usa otro puerto)
+# Exponer el puerto que usa Flask
 EXPOSE 5000
 
 # Comando por defecto
