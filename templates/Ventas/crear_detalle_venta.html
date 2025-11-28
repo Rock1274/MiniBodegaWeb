@@ -6,7 +6,7 @@
                 <button type="button" class="btn-close white" data-bs-dismiss="modal"></button>
             </div>
             <div class="modal-body">
-                <form method="post" hx-post="/detalles_ventas" hx-target="#detalles-ventas-tbody" hx-swap="beforeend" hx-target-error="#error-container" hx-swap-error="innerHTML" hx-on:htmx:after-request="closeModalAndResetForm()">
+                <form method="post" hx-post="/detalles_ventas" hx-target="#detalles-ventas-tbody" hx-swap="innerHTML" hx-target-error="#error-container" hx-swap-error="innerHTML" hx-on:htmx:after-request="closeCrearDetVentaModal()">
                     <div class="mb-3">
                         <label for="dv_id_venta" class="form-label">Venta</label>
                         <input type="number" name="dv_id_venta" id="dv_id_venta" class="form-control" min="1"
@@ -184,7 +184,7 @@
     });
 
     // Función para cerrar modal y resetear formulario después de éxito HTMX
-    function closeModalAndResetForm() {
+    window.closeCrearDetVentaModal = function() {
         // Usar el botón de cerrar para evitar conflictos con Bootstrap
         const closeButton = document.querySelector('#crearDetVentaModal .btn-close');
         if (closeButton) {
