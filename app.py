@@ -109,19 +109,27 @@ def render_template_ajax(template, **kwargs):
 
 def get_db_connection():
     try:
-        conn = pyodbc.connect(
-            f"DRIVER={{ODBC Driver 18 for SQL Server}};"
-            f"SERVER={os.getenv('DB_HOST')};"
-            f"DATABASE={os.getenv('DB_NAME')};"
-            f"UID={os.getenv('DB_USER')};"
-            f"PWD={os.getenv('DB_PASS')};"
-            "Encrypt=yes;TrustServerCertificate=no;Connection Timeout=30;"
+        server = os.environ.get("AZURE_SQL_SERVER")
+        database = os.environ.get("AZURE_SQL_DB")
+        username = os.environ.get("AZURE_SQL_USER")
+        password = os.environ.get("AZURE_SQL_PASS")
+
+        conn_str = (
+            "DRIVER={ODBC Driver 17 for SQL Server};"
+            f"SERVER={server};"
+            f"DATABASE={database};"
+            f"UID={username};"
+            f"PWD={password};"
+            "Encrypt=yes;"
+            "TrustServerCertificate=no;"
+            "Connection Timeout=30;"
         )
-        return conn
+    
+        return pyodbc.connect(conn_str)
     except pyodbc.Error as e:
         print(f"Error de conexión: {e}")
         raise
-    
+
 def verificar_sesion_recordada():
     """Verifica si hay una cookie de sesión recordada y restaura la sesión"""
     if 'usuario' not in session:
