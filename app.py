@@ -121,7 +121,7 @@ def get_db_connection():
             f"UID={username};"
             f"PWD={password};"
             "Encrypt=yes;"
-            "TrustServerCertificate=no;"
+            "TrustServerCertificate=yes;"
             "Connection Timeout=30;"
         )
     
