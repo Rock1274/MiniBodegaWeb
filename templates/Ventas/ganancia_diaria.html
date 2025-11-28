@@ -146,7 +146,7 @@ async function updateChart() {
     try {
         const response = await fetch('/ganancia_diaria', {
             headers: {
-                'X-Requested-With': 'XMLHttpRequest'
+                'X-Custom-Ajax-Navigation': 'true'
             }
         });
         if (response.ok) {

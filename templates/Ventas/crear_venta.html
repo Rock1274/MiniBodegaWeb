@@ -10,7 +10,7 @@
                 <p>¿Deseas crear una nueva venta con la fecha actual?</p>
             </div>
             <div class="modal-footer justify-content-center">
-                <a href="#" hx-post="{{ url_for('crear_venta') }}" hx-target="#ventas-tbody" hx-swap="beforeend" hx-on:htmx:after-request="console.log('HTMX after-request ejecutado'); closeModalAndResetForm()" class="btn btn-primary">
+                <a href="#" hx-post="{{ url_for('crear_venta') }}" hx-target="#ventas-tbody" hx-swap="beforeend" hx-on:htmx:after-request="updateMaxVentaId(); closeCrearVentaModal()" class="btn btn-primary">
                     Sí, crear venta
                 </a>
                 <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
@@ -20,8 +20,8 @@
 </div>
 
 <script>
-window.closeModalAndResetForm = function() {
-    console.log('=== CLOSE MODAL FUNCTION ===');
+window.closeCrearVentaModal = function() {
+    console.log('=== CLOSE CREAR VENTA MODAL FUNCTION ===');
     const modal = document.getElementById('crearVentaModal');
 
     if (modal) {
@@ -29,7 +29,30 @@ window.closeModalAndResetForm = function() {
         // Solo necesitamos cerrar el modal usando Bootstrap
         const bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
         bsModal.hide();
-        console.log('Modal cerrado correctamente');
+        console.log('Modal de crear venta cerrado correctamente');
+    }
+};
+
+window.updateMaxVentaId = function() {
+    console.log('Actualizando max del input dv_id_venta');
+    const tbody = document.getElementById('ventas-tbody');
+    if (tbody) {
+        const rows = tbody.querySelectorAll('tr');
+        let maxId = 1;
+        rows.forEach(row => {
+            const firstCell = row.querySelector('td');
+            if (firstCell) {
+                const id = parseInt(firstCell.textContent.trim());
+                if (!isNaN(id) && id > maxId) {
+                    maxId = id;
+                }
+            }
+        });
+        const input = document.getElementById('dv_id_venta');
+        if (input) {
+            input.max = maxId;
+            console.log('Max actualizado a:', maxId);
+        }
     }
 };
 

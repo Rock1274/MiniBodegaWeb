@@ -1,4 +1,4 @@
-// {% extends "base.html" %}
+{% extends "base.html" %}
 {% block content %}
 <div class="container mt-4">
     <h2 class="text-center text-success pag-titulo">Carrito - Nueva Compra</h2>
@@ -100,13 +100,18 @@ function agregarProducto(idPaquete) {
 
     fetch(url, {
         method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            'X-Custom-Ajax-Navigation': 'true'
+        },
         body: `id_paquete=${idPaquete}&cantidad=${cantidad}`
     })
     .then(response => {
         if (!response.ok) throw new Error("Error al agregar");
         // Actualizar solo la tabla del carrito sin recargar
-        return fetch(`/carrito/{{ compra.Id_Compra }}?partial=1`);
+        return fetch(`/carrito/{{ compra.Id_Compra }}?partial=1`, {
+            headers: { 'X-Custom-Ajax-Navigation': 'true' }
+        });
     })
     .then(response => response.text())
     .then(html => {
@@ -122,11 +127,16 @@ function agregarProducto(idPaquete) {
 function eliminarProducto(idDetalle) {
     const url = `/carrito/{{ compra.Id_Compra }}/eliminar/${idDetalle}`;
 
-    fetch(url, { method: "DELETE" })
+    fetch(url, {
+        method: "DELETE",
+        headers: { 'X-Custom-Ajax-Navigation': 'true' }
+    })
     .then(response => {
         if (!response.ok) throw new Error("Error al eliminar producto");
         // Refresca solo el carrito
-        return fetch(`/carrito/{{ compra.Id_Compra }}?partial=1`);
+        return fetch(`/carrito/{{ compra.Id_Compra }}?partial=1`, {
+            headers: { 'X-Custom-Ajax-Navigation': 'true' }
+        });
     })
     .then(response => response.text())
     .then(html => {
