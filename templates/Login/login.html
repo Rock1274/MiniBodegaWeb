@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <title>MiniBodega</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="{{ url_for('static', filename='login.css') }}">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins&display=swap" rel="stylesheet" />
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='SideBar/botella-de-soda.svg') }}">
+
+    <style>
+        .modern-link {
+            margin-top: 25px;
+            display: inline-block;
+            padding: 5px;
+            color: white !important;
+            text-decoration: none;
+            font-weight: 300;
+            font-size: 1em;
+            transition: all 0.3s ease;
+        }
+        .modern-link:hover {
+            transform: translateY(-2px);
+            text-shadow: 0 6px 20px rgba(255, 255, 255, 0.4);
+            color: white !important;
+        }
+        
+    </style>
+</head>
+<body>
+    <div style="background: linear-gradient(to top right, #00000099 60%, transparent), linear-gradient(to bottom left, #00000079 60%, transparent); height: 100%; width: 100%; position: absolute;"></div>
+    <div class="container fade-in">
+        <div class="form-input">
+            <form method="POST" action="{{ url_for('login') }}">
+                <h1 class="fade-input" style="color: white;">Inicio de Sesión</h1><br><br>
+
+                <div class="input-group fade-input">
+                    <input type="text" id="nusuario" name="nusuario" placeholder="Usuario" spellcheck="false" autocomplete="username">
+                    <i class="fa-regular fa-user"></i>
+                </div>
+
+                <div class="input-group fade-input">
+                    <input type="password" name="contrasena" id="contrasena" placeholder="Contraseña" spellcheck="false" autocomplete="current-password">
+                    <i class="fa-regular fa-eye" id="togglePassword"></i>
+                </div>
+
+                <div class="fade-input recuerdame" style="display: flex; margin: 0.6em;">
+                    <input type="checkbox" name="recuerdame" id="Recuerdame" value="1">
+                    <label for="Recuerdame" style="cursor: pointer;">
+                        <span></span>
+                        Recordarme
+                        <ins><i>Recordarme</i></ins>
+                    </label>
+                </div>
+
+                <div class="fade-input">
+                    <a href="{{ url_for('recuperar_contrasena') }}" class="modern-link">¿Olvidaste tu contraseña?</a>
+                </div>
+
+                <button type="submit" class="login-btn fade-input">
+                    <span>Acceder</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        // Mostrar/ocultar contraseña
+        const togglePassword = document.getElementById('togglePassword');
+        const passwordInput = document.getElementById('contrasena');
+
+        if (togglePassword && passwordInput) {
+            togglePassword.addEventListener('click', () => {
+                const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+                passwordInput.setAttribute('type', type);
+                togglePassword.classList.toggle('fa-eye');
+                togglePassword.classList.toggle('fa-eye-slash');
+            });
+        }
+
+        // Función para verificar el estado del checkbox "recuérdame"
+        function verificarRecuerdame() {
+            const checkbox = document.getElementById('Recuerdame');
+            if (checkbox) {
+                console.log('Estado del checkbox "Recuérdame":', checkbox.checked);
+                return checkbox.checked;
+            }
+            return false;
+        }
+
+        // Agregar listener al formulario para mostrar información de debug
+        const form = document.querySelector('form');
+        if (form) {
+            form.addEventListener('submit', function(e) {
+                const recuerdameChecked = verificarRecuerdame();
+                console.log('🔐 Enviando formulario con "Recuérdame":', recuerdameChecked);
+
+                if (recuerdameChecked) {
+                    console.log('🍪 Se crearán cookies persistentes de 30 días');
+                } else {
+                    console.log('⚡ Solo se creará sesión temporal');
+                }
+            });
+        }
+
+        // Verificar si hay cookies existentes al cargar la página
+        window.addEventListener('load', function() {
+            const cookies = document.cookie.split(';');
+            const tieneCookiesRecuerdame = cookies.some(cookie =>
+                cookie.trim().startsWith('recuerdame_'));
+
+            if (tieneCookiesRecuerdame) {
+                console.log('🍪 Se detectaron cookies de "recuérdame" existentes');
+            }
+        });
+    </script>
+</body>
+</html>

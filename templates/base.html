@@ -1,0 +1,820 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>MiniBodega</title>
+    <link rel="icon" type="image/svg+xml" href="{{ url_for('static', filename='SideBar/botella-de-soda.svg') }}">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <!-- CSS crítico primero -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='base.css') }}">
+
+    <!-- CSS crítico inline para evitar FOUC -->
+    <style>
+        /* Ocultar contenido hasta que carguen los estilos */
+        .content { opacity: 0; transition: opacity 0.3s ease; }
+        .content.loaded { opacity: 1; }
+    </style>
+
+    <!-- Preload de estilos específicos de página -->
+    {% if request.endpoint and ('bienvenida' in request.endpoint or request.endpoint == 'index') %}
+    <link rel="preload" href="{{ url_for('static', filename='CSS Bienvenida/style_Bienvenida.css') }}" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="{{ url_for('static', filename='CSS Bienvenida/style_Bienvenida.css') }}"></noscript>
+    {% endif %}
+
+    <!-- Fuentes con preload -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:ital,wght@0,100..900;1,100..900&display=swap" rel="stylesheet">
+
+    <!-- Estilos específicos de página -->
+    {% block styles %} {% endblock %}
+
+    <!-- Bootstrap y otros estilos externos -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="{{ url_for('static', filename='image-preview.js') }}"></script>
+    <script src="{{ url_for('static', filename='CSS Bienvenida/app.js') }}"></script>
+    <!-- HTMX para AJAX sin recargas -->
+    <script src="https://unpkg.com/htmx.org@1.9.10"></script>
+    <!-- Select2 CSS -->
+<link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
+<!-- Select2 Bootstrap-5 theme (opcional, para mejor integración visual) -->
+<link href="https://cdn.jsdelivr.net/npm/@ttskch/select2-bootstrap4-theme@1.5.2/dist/select2-bootstrap4.min.css" rel="stylesheet" />
+
+</head>
+
+<body>
+    <!-- Botón visible solo en móviles -->
+    <div class="all">
+        <button class="toggle-button d-lg-none" onclick="toggleSidebar()">
+            <img src="/static/SideBar/menu.svg" id="menu" alt="Inicio" 
+                    style="cursor:pointer;" />
+        </button>
+
+        <!-- Overlay para móviles -->
+        <div class="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+        <div class="sidebar collapsed open">
+            <div class="btn_Menu_Bienvenida">
+                <h2>
+                    <img src="/static/SideBar/menu.svg" id="menu" alt="Inicio" onclick="toggleSidebar()"
+                        style="cursor:pointer;" />
+                    <a href="{{ url_for('index') }}" class="sidebar-title"
+                        style="cursor: pointer; text-decoration: none; color: inherit; font-size: 1em;">
+                        Mini Bodega
+                    </a>
+                </h2>
+            </div>
+            <div class="div-botonesSB">
+                <div>
+                    <a href="{{ url_for('ver_paquetes') }}" class="botones">
+                        <img src="/static/SideBar/Coke2.svg" alt="Productos" />
+                        <span class="sidebar-text">Productos</span>
+                    </a>
+                    <a href="{{ url_for('ver_detalles_ventas') }}" class="botones">
+                        <img src="/static/SideBar/Venta.svg" alt="Ventas" />
+                        <span class="sidebar-text">Detalles de Ventas</span>
+                    </a>
+                    <a href="{{ url_for('ver_compras') }}" class="botones">
+                        <img src="/static/SideBar/Compra.svg" alt="Compras" />
+                        <span class="sidebar-text">Detalles de Compras</span>
+                    </a>
+                    <a href="{{ url_for('ver_empleados') }}" class="botones">
+                        <img src="/static/SideBar/Personal.svg" alt="Empleados" />
+                        <span class="sidebar-text">Empleados</span>
+                    </a>
+                </div>
+
+                <div class="sidebar-spacer" style="flex-grow: 1;"></div>
+                <!-- Aquí está el cambio: botón que abre modal -->
+                <a href="#" id="btnCerrarSesion" class="logout">
+                    <img src="/static/SideBar/log out.svg" alt="Cerrar Sesión" width="27" height="27" />
+                    <span class="sidebar-text">Cerrar Sesión</span>
+                </a>
+
+                
+            </div>
+
+            <div class="sidebar-footer">
+                <img src="/static/SideBar/CocaCola.png" alt="Logo" />
+            </div>
+        </div>
+
+        <div class="content" style="height: 100%;">
+            {% block content %} {% endblock %}
+        </div>
+
+        <!-- Contenedor para modales dinámicos -->
+        <div id="dynamic-modals" data-modals>
+            {% block modals %} {% endblock %}
+        </div>
+
+        <!-- Modal moderno para confirmar cierre de sesión -->
+        <div class="modal fade" id="confirmLogoutModal" tabindex="-1" aria-labelledby="confirmLogoutLabel" inert>
+            <div class="modal-dialog modal-dialog-centered modal-personalizado">
+                <div class="modal-content modern-modal">
+                    <div class="modal-header modern-modal-header">
+                        <div class="modal-icon">
+                            <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="16,17 21,12 16,7" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="21" y1="12" x2="9" y2="12" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <h5 class="modal-title modern-modal-title" id="confirmLogoutLabel">Cerrar Sesión</h5>
+                        <button type="button" class="btn-close modern-btn-close" data-bs-dismiss="modal" aria-label="Cerrar">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </button>
+                    </div>
+                    <div class="modal-body modern-modal-body">
+                        <p class="modal-message">¿Estás seguro de que deseas cerrar sesión?</p>
+                        <p class="modal-submessage">Se perderá tu sesión actual y tendrás que iniciar sesión nuevamente.</p>
+                    </div>
+                    <div class="modal-footer modern-modal-footer">
+                        <button type="button" class="btn modern-btn modern-btn-secondary" data-bs-dismiss="modal">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M6 6l12 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Cancelar
+                        </button>
+                        <a href="{{ url_for('logout') }}" class="btn modern-btn modern-btn-danger">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <polyline points="16,17 21,12 16,7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <line x1="21" y1="12" x2="9" y2="12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Sí, cerrar sesión
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+            // Funciones del sidebar (optimizadas para mejor rendimiento)
+            function toggleSidebar() {
+                const sidebar = document.querySelector('.sidebar');
+                const overlay = document.querySelector('.sidebar-overlay');
+                
+
+                // Para tablets y móviles: abre o cierra usando clase `open`
+                if (window.innerWidth <= 912) {
+                    if (overlay) {
+                        sidebar.classList.toggle('open');
+                        overlay.classList.toggle('active');
+                    }
+                } else {
+                    sidebar.classList.toggle('collapsed');
+                }
+
+                
+            }
+
+            //Para que no se buguee cuando rote el dispositivo (optimizado)
+            function restoreSidebarOnRotate() {
+                const sidebar = document.querySelector('.sidebar');
+                const overlay = document.querySelector('.sidebar-overlay');
+                const content = document.querySelector('.content');
+
+                // Agregar clase de resizing para animación suave
+                content.classList.add('resizing');
+
+                if (window.innerWidth <= 912) {
+                    // En tablets y móviles, restaurar sin collapsed
+                    sidebar.classList.remove('collapsed');
+                    if (overlay) {
+                        overlay.classList.remove('active');
+                    }
+                } else {
+                    // En escritorio, forzar siempre collapsed
+                    sidebar.classList.add('collapsed');
+                    if (overlay) {
+                        overlay.classList.remove('active');
+                    }
+                }
+
+                
+
+                // Usar requestAnimationFrame para mejor sincronización
+                requestAnimationFrame(() => {
+                    requestAnimationFrame(() => {
+                        content.classList.remove('resizing');
+                    });
+                });
+            }
+
+            // Ejecutar al cargar y cuando cambie el tamaño/orientación
+            window.addEventListener('resize', restoreSidebarOnRotate);
+            window.addEventListener('orientationchange', restoreSidebarOnRotate);
+            // Ejecutar una vez al cargar la página
+            window.addEventListener('DOMContentLoaded', restoreSidebarOnRotate);
+
+            // Agregar event listeners a los botones del sidebar para agregar clase 'open' en móviles
+            document.addEventListener('DOMContentLoaded', function() {
+                const botones = document.querySelectorAll('.sidebar .botones, .sidebar .sidebar-title');
+                botones.forEach(boton => {
+                    boton.addEventListener('click', function() {
+                        if (window.innerWidth <= 912) {
+                            const sidebar = document.querySelector('.sidebar');
+                            const overlay = document.querySelector('.sidebar-overlay');
+                            sidebar.classList.add('open');
+                            overlay.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+            // También agregar después de carga AJAX
+            window.addEventListener('contentLoaded', function() {
+                const botones = document.querySelectorAll('.sidebar .botones, .sidebar .sidebar-title');
+                botones.forEach(boton => {
+                    boton.addEventListener('click', function() {
+                        if (window.innerWidth <= 912) {
+                            const sidebar = document.querySelector('.sidebar');
+                            const overlay = document.querySelector('.sidebar-overlay');
+                            sidebar.classList.add('open');
+                            if (overlay) overlay.classList.remove('active');
+                        }
+                    });
+                });
+            });
+
+
+            // Para reiniciar los modales al cerrarlos y manejar problemas de accesibilidad
+            document.addEventListener('DOMContentLoaded', function () {
+                // Selecciona todos los modals
+                var modals = document.querySelectorAll('.modal');
+                const sidebar = document.querySelector('.sidebar');
+
+                // Función para manejar problemas de accesibilidad con aria-hidden
+                function fixModalAccessibility() {
+                    modals.forEach(function (modal) {
+                        // Reemplazar aria-hidden con inert para evitar problemas de foco
+                        if (modal.hasAttribute('aria-hidden')) {
+                            modal.setAttribute('inert', '');
+                            modal.removeAttribute('aria-hidden');
+                        }
+
+                        // Crear un MutationObserver para detectar cuando Bootstrap aplique aria-hidden dinámicamente
+                        const observer = new MutationObserver(function(mutations) {
+                            mutations.forEach(function(mutation) {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+                                    // Si Bootstrap aplica aria-hidden, reemplazarlo inmediatamente con inert
+                                    if (modal.hasAttribute('aria-hidden')) {
+                                        modal.setAttribute('inert', '');
+                                        modal.removeAttribute('aria-hidden');
+                                        console.log('Reemplazado aria-hidden con inert en:', modal.id);
+                                    }
+                                }
+                            });
+                        });
+
+                        // Configurar el observer para monitorear cambios en atributos
+                        observer.observe(modal, {
+                            attributes: true,
+                            attributeFilter: ['aria-hidden']
+                        });
+
+                        // Event listener para cuando se muestra el modal
+                        modal.addEventListener('show.bs.modal', function () {
+                            // Remover inert temporalmente para permitir interacción
+                            modal.removeAttribute('inert');
+                        });
+
+                        // Event listener para cuando se oculta el modal
+                        modal.addEventListener('hide.bs.modal', function () {
+                            // Mover foco fuera del modal ANTES de que Bootstrap aplique aria-hidden
+                            const moveFocusOutside = () => {
+                                if (document.activeElement && modal.contains(document.activeElement)) {
+                                    // Mover foco a un elemento seguro fuera del modal
+                                    const sidebarButton = document.querySelector('.toggle-button');
+                                    const sidebarLink = document.querySelector('.sidebar-title a');
+                                    const mainContent = document.querySelector('.content');
+
+                                    if (sidebarButton && !sidebarButton.disabled) {
+                                        sidebarButton.focus();
+                                    } else if (sidebarLink) {
+                                        sidebarLink.focus();
+                                    } else if (mainContent) {
+                                        mainContent.focus();
+                                    } else {
+                                        document.body.focus();
+                                    }
+                                    console.log('Focus moved outside modal before hiding');
+                                }
+                            };
+
+                            // Mover foco inmediatamente
+                            moveFocusOutside();
+
+                            // También intentar mover foco en los elementos dentro del modal
+                            const focusableElements = modal.querySelectorAll('button, input, select, textarea, [tabindex]');
+                            focusableElements.forEach(element => {
+                                if (element === document.activeElement) {
+                                    element.blur();
+                                }
+                            });
+
+                            // Asegurar que el foco se mueva con un pequeño delay
+                            setTimeout(moveFocusOutside, 10);
+                        });
+
+                        // Event listener para después de que se oculte el modal
+                        modal.addEventListener('hidden.bs.modal', function () {
+                            // Restaurar inert para mantener accesibilidad
+                            modal.setAttribute('inert', '');
+
+                            // Resetea todos los formularios dentro del modal cerrado
+                            var forms = modal.querySelectorAll('form');
+                            forms.forEach(function (form) {
+                                form.reset();
+                            });
+
+                            // Resetear campos específicos si existen (usar IDs consistentes)
+                            const inventarioActual = document.getElementById('dv-inventario-actual') || document.getElementById('inventario-actual');
+                            const inventarioPaq = document.getElementById('dv-inventario-paq') || document.getElementById('inventario-paq');
+                            const inventarioUnd = document.getElementById('dv-inventario-und') || document.getElementById('inventario-und');
+
+                            if (inventarioActual) inventarioActual.textContent = 'Seleccione un paquete para ver el inventario.';
+                            if (inventarioPaq) inventarioPaq.textContent = '';
+                            if (inventarioUnd) inventarioUnd.textContent = '';
+                        });
+                    });
+                }
+
+                // Aplicar la corrección de accesibilidad
+                fixModalAccessibility();
+
+                // Si está en escritorio, cerrar siempre al cargar
+                if (window.innerWidth > 912) {
+                    sidebar.classList.add('collapsed');
+                }
+            });
+
+            // Función para inicializar el botón de cerrar sesión con backdrop personalizado
+            function initLogoutButton() {
+                const btnCerrarSesion = document.getElementById('btnCerrarSesion');
+                const modalElement = document.getElementById('confirmLogoutModal');
+                const contentDiv = document.querySelector('.content');
+
+                if (!btnCerrarSesion || !modalElement || !contentDiv) return;
+
+                // Remover event listeners previos
+                const newBtn = btnCerrarSesion.cloneNode(true);
+                btnCerrarSesion.parentNode.replaceChild(newBtn, btnCerrarSesion);
+
+                newBtn.addEventListener('click', function(e) {
+                    e.preventDefault();
+
+                    // Crear backdrop personalizado antes del .content
+                    const customBackdrop = document.createElement('div');
+                    customBackdrop.className = 'modal-backdrop fade';
+                    customBackdrop.style.zIndex = '1055';
+                    contentDiv.parentNode.insertBefore(customBackdrop, contentDiv);
+
+                    // Crear modal con backdrop: false para evitar el backdrop automático de Bootstrap
+                    const logoutModal = new bootstrap.Modal(modalElement, {
+                        backdrop: false,
+                        keyboard: true,
+                        focus: true
+                    });
+
+                    // Interceptar la creación del modal para manejar el backdrop personalizado
+                    const originalShow = logoutModal.show;
+                    logoutModal.show = function() {
+                        // Mostrar el backdrop personalizado
+                        customBackdrop.classList.add('show');
+                        customBackdrop.style.display = 'block';
+
+                        // Llamar al método original
+                        originalShow.call(this);
+                    };
+
+                    // Interceptar el cierre del modal para ocultar el backdrop personalizado
+                    const originalHide = logoutModal.hide;
+                    logoutModal.hide = function() {
+                        // Ocultar el backdrop personalizado
+                        customBackdrop.classList.remove('show');
+                        setTimeout(() => {
+                            customBackdrop.style.display = 'none';
+                            customBackdrop.remove();
+                        }, 150); // Tiempo de la transición fade
+
+                        // Llamar al método original
+                        originalHide.call(this);
+                    };
+
+                    logoutModal.show();
+                });
+            }
+
+            // Inicializar al cargar la página
+            document.addEventListener('DOMContentLoaded', function() {
+                initLogoutButton();
+            });
+
+            // Evento para reinicializar componentes después de carga AJAX
+            window.addEventListener('contentLoaded', function(e) {
+                console.log('🔄 Reinicializando componentes después de carga AJAX');
+
+                // Función para manejar problemas de accesibilidad con aria-hidden en modales dinámicos
+                function fixModalAccessibility() {
+                    const modals = document.querySelectorAll('.modal');
+                    modals.forEach(function (modal) {
+                        // Reemplazar aria-hidden con inert para evitar problemas de foco
+                        if (modal.hasAttribute('aria-hidden')) {
+                            modal.setAttribute('inert', '');
+                            modal.removeAttribute('aria-hidden');
+                        }
+
+                        // Crear un MutationObserver para detectar cuando Bootstrap aplique aria-hidden dinámicamente
+                        const observer = new MutationObserver(function(mutations) {
+                            mutations.forEach(function(mutation) {
+                                if (mutation.type === 'attributes' && mutation.attributeName === 'aria-hidden') {
+                                    // Si Bootstrap aplica aria-hidden, reemplazarlo inmediatamente con inert
+                                    if (modal.hasAttribute('aria-hidden')) {
+                                        modal.setAttribute('inert', '');
+                                        modal.removeAttribute('aria-hidden');
+                                        console.log('Reemplazado aria-hidden con inert en modal dinámico:', modal.id);
+                                    }
+                                }
+                            });
+                        });
+
+                        // Configurar el observer para monitorear cambios en atributos
+                        observer.observe(modal, {
+                            attributes: true,
+                            attributeFilter: ['aria-hidden']
+                        });
+
+                        // Event listener para cuando se muestra el modal
+                        modal.addEventListener('show.bs.modal', function () {
+                            // Remover inert temporalmente para permitir interacción
+                            modal.removeAttribute('inert');
+                        });
+
+                        // Event listener para cuando se oculta el modal
+                        modal.addEventListener('hide.bs.modal', function () {
+                            // Mover foco fuera del modal ANTES de que Bootstrap aplique aria-hidden
+                            const moveFocusOutside = () => {
+                                if (document.activeElement && modal.contains(document.activeElement)) {
+                                    // Mover foco a un elemento seguro fuera del modal
+                                    const sidebarButton = document.querySelector('.toggle-button');
+                                    const sidebarLink = document.querySelector('.sidebar-title a');
+                                    const mainContent = document.querySelector('.content');
+
+                                    if (sidebarButton && !sidebarButton.disabled) {
+                                        sidebarButton.focus();
+                                    } else if (sidebarLink) {
+                                        sidebarLink.focus();
+                                    } else if (mainContent) {
+                                        mainContent.focus();
+                                    } else {
+                                        document.body.focus();
+                                    }
+                                    console.log('Focus moved outside modal before hiding');
+                                }
+                            };
+
+                            // Mover foco inmediatamente
+                            moveFocusOutside();
+
+                            // También intentar mover foco en los elementos dentro del modal
+                            const focusableElements = modal.querySelectorAll('button, input, select, textarea, [tabindex]');
+                            focusableElements.forEach(element => {
+                                if (element === document.activeElement) {
+                                    element.blur();
+                                }
+                            });
+
+                            // Asegurar que el foco se mueva con un pequeño delay
+                            setTimeout(moveFocusOutside, 10);
+                        });
+
+                        // Event listener para después de que se oculte el modal
+                        modal.addEventListener('hidden.bs.modal', function () {
+                            console.log('Modal cerrado, reiniciando:', modal.id);
+                            // Restaurar inert para mantener accesibilidad
+                            modal.setAttribute('inert', '');
+
+                            // Resetea todos los formularios dentro del modal cerrado
+                            var forms = modal.querySelectorAll('form');
+                            forms.forEach(function (form) {
+                                console.log('Reseteando form en modal:', modal.id);
+                                form.reset();
+                            });
+
+                            // Resetear campos específicos si existen (usar IDs consistentes)
+                            const inventarioActual = document.getElementById('dv-inventario-actual') || document.getElementById('inventario-actual');
+                            const inventarioPaq = document.getElementById('dv-inventario-paq') || document.getElementById('inventario-paq');
+                            const inventarioUnd = document.getElementById('dv-inventario-und') || document.getElementById('inventario-und');
+
+                            if (inventarioActual) {
+                                inventarioActual.textContent = 'Seleccione un paquete para ver el inventario.';
+                                console.log('Reseteado inventarioActual');
+                            }
+                            if (inventarioPaq) {
+                                inventarioPaq.textContent = '';
+                                console.log('Reseteado inventarioPaq');
+                            }
+                            if (inventarioUnd) {
+                                inventarioUnd.textContent = '';
+                                console.log('Reseteado inventarioUnd');
+                            }
+                        });
+                    });
+                }
+
+                // Aplicar la corrección de accesibilidad a modales dinámicos
+                fixModalAccessibility();
+
+                // Reinicializar botón de cerrar sesión (sin duplicados) con delay para asegurar que el DOM esté listo
+                setTimeout(() => {
+                    initLogoutButton();
+                }, 100);
+            });
+
+
+            // Animación de los datos interactivos en Paquetes.html
+            function initInfoInteractivaHover() {
+            document.querySelectorAll('.Inventario.info-paq').forEach(function(inv){
+                // Evita listeners duplicados
+                inv.onmouseenter = function() {
+                    let card = inv.closest('.card');
+                    if(card) {
+                        let targets = card.querySelectorAll('.info-interactiva .info-paq');
+                        console.log('Encontrados:', targets.length);
+                        targets.forEach(function(el){
+                            el.style.color = '#fff';
+                            el.style.transform = 'scale(1.15)';
+                            el.style.textShadow = '0px 2px 6px #000000';
+                            el.style.transition = 'color 0.3s, transform 0.3s ease-in-out, text-shadow 0.3s ease-in-out';
+                        });
+                    }
+                };
+                inv.onmouseleave = function() {
+                    let card = inv.closest('.card');
+                    if(card) {
+                        card.querySelectorAll('.info-interactiva .info-paq').forEach(function(el){
+                            el.style.color = '';
+                            el.style.transform = 'scale(1)';
+                            el.style.textShadow = '';
+                        });
+                    }
+                };
+            });
+        }
+        
+        // ¡Llama a la función en los eventos correctos!
+        document.addEventListener('DOMContentLoaded', function() {
+            initInfoInteractivaHover();
+        });
+        
+        window.addEventListener('contentLoaded', function(event) {
+            if (event.detail.url.includes('paquetes')) {
+                setTimeout(initInfoInteractivaHover, 100);
+            }
+        });
+
+       
+        </script>
+
+    </div>
+
+
+    <!-- Script de navegación AJAX -->
+    <script src="{{ url_for('static', filename='ajax-navigation.js') }}"></script>
+
+    <!-- jQuery (requerido por Select2) -->
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <!-- Select2 JS -->
+    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
+    
+    <script>
+
+    function initSelect2Filtros() {
+        $('#Filtros').select2({
+            theme: 'bootstrap4',
+            width: 'resolve',
+            minimumResultsForSearch: Infinity
+        });
+
+        // Bandera para evitar bucle infinito
+        let closingByScript = false;
+
+        $('#Filtros').off('select2:closing').on('select2:closing', function(e) {
+            if (closingByScript) {
+                closingByScript = false;
+                return;
+            }
+            e.preventDefault();
+            var $dropdown = $('.select2-dropdown');
+            $dropdown.removeClass('showing');
+            setTimeout(function() {
+                closingByScript = true;
+                $('#Filtros').select2('close');
+            }, 500); // Debe coincidir con la duración de la transición en el CSS
+        });
+
+        $('#Filtros').off('select2:opening').on('select2:opening', function(e) {
+            setTimeout(function() {
+                $('.select2-dropdown').addClass('showing');
+            }, 10);
+        });
+    }
+
+    $(document).ready(function() {
+        initSelect2Filtros();
+    });
+
+    // Si usas un evento personalizado para AJAX, por ejemplo:
+    window.addEventListener('contentLoaded', function(event) {
+        if (event.detail.url.includes('paquetes')) {
+            setTimeout(initSelect2Filtros, 100);
+        }
+    });
+
+
+
+    
+
+    function animateDropdownOpen(menu) {
+    menu.style.display = 'block';
+    menu.style.height = 'auto';
+    const fullHeight = menu.scrollHeight + 'px';
+    menu.style.height = '0';
+    // Forzar reflow
+    menu.offsetHeight;
+    menu.style.height = fullHeight;
+    menu.classList.add('show');
+}
+
+function animateDropdownClose(menu) {
+    menu.style.height = menu.scrollHeight + 'px';
+    // Forzar reflow
+    menu.offsetHeight;
+    menu.style.height = '0';
+    menu.classList.remove('show');
+}
+
+// Inicialización de búsquedas recientes
+function initBusquedaRecientes() {
+    const input = document.getElementById('busquedaInput');
+    const recientes = document.getElementById('busquedaRecientes');
+    if (!input || !recientes) return;
+
+    // Limpia listeners previos
+    input.onfocus = input.oninput = null;
+    if (input.form) input.form.onsubmit = null;
+
+    function mostrarRecientes() {
+        let historial = JSON.parse(localStorage.getItem('busquedas') || '[]');
+        if (historial.length > 4) {
+            historial = historial.slice(0, 4);
+            localStorage.setItem('busquedas', JSON.stringify(historial));
+        }
+        const filtro = input.value.trim().toLowerCase();
+        const filtrados = filtro
+            ? historial.filter(item => item.toLowerCase().includes(filtro))
+            : historial;
+        recientes.innerHTML = filtrados.map(item => `<div class="dropdown-item" style="cursor:pointer;">${item}</div>`).join('');
+        if (filtrados.length > 0) {
+            animateDropdownOpen(recientes);
+        } else {
+            animateDropdownClose(recientes);
+        }
+    }
+
+    input.addEventListener('focus', mostrarRecientes);
+    input.addEventListener('input', mostrarRecientes);
+
+    let preventHide = false;
+
+    recientes.addEventListener('mousedown', function(e) {
+        if (e.target.classList.contains('dropdown-item')) {
+            input.value = e.target.textContent;
+            animateDropdownClose(recientes);
+            setTimeout(() => input.focus(), 0);
+            e.preventDefault();
+        } else {
+            preventHide = true;
+        }
+    });
+
+    input.addEventListener('blur', function() {
+        setTimeout(() => {
+            if (!preventHide) {
+                animateDropdownClose(recientes);
+            }
+            preventHide = false;
+        }, 100);
+    });
+
+    if (input.form) {
+        input.form.addEventListener('submit', function() {
+            let historial = JSON.parse(localStorage.getItem('busquedas') || '[]');
+            if (!historial.includes(input.value) && input.value.trim() !== '') {
+                historial.unshift(input.value);
+                if (historial.length > 4) historial = historial.slice(0, 4); // máximo 4 recientes
+                localStorage.setItem('busquedas', JSON.stringify(historial));
+            }
+        });
+    }
+
+    // Limpia height y display después de la transición
+    recientes.addEventListener('transitionend', function(e) {
+        if (!recientes.classList.contains('show')) {
+            recientes.style.display = '';
+            recientes.style.height = '';
+        } else {
+            recientes.style.height = 'auto'; // para que el menú se adapte si cambia el contenido
+        }
+    });
+}
+
+// Inicializa al cargar la página y tras AJAX
+document.addEventListener('DOMContentLoaded', initBusquedaRecientes);
+window.addEventListener('contentLoaded', initBusquedaRecientes);
+
+// Función para mostrar contenido una vez que los estilos estén listos
+function showContentWhenReady() {
+    // Esperar a que el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', showContentWhenReady);
+        return;
+    }
+
+    // Pequeño delay para asegurar que los estilos se apliquen
+    setTimeout(() => {
+        const content = document.querySelector('.content');
+        if (content) {
+            content.classList.add('loaded');
+        }
+    }, 50);
+}
+
+// Ejecutar cuando la página esté lista
+showContentWhenReady();
+
+// También ejecutar después de carga AJAX
+window.addEventListener('contentLoaded', () => {
+    // El contenido ya se muestra en ajax-navigation.js, solo asegurar que esté visible
+    setTimeout(() => {
+        const content = document.querySelector('.content');
+        if (content && !content.classList.contains('loaded')) {
+            content.classList.add('loaded');
+        }
+    }, 100);
+
+    // Actualizar botones activos del sidebar después de navegación AJAX
+    updateSidebarActiveButton();
+});
+
+// Función para actualizar el botón activo del sidebar basado en la URL actual
+function updateSidebarActiveButton() {
+    const currentPath = window.location.pathname;
+
+    // Remover clase 'activo' de todos los botones
+    const allButtons = document.querySelectorAll('.sidebar .botones');
+    allButtons.forEach(button => button.classList.remove('activo'));
+
+    // Mapear patrones de rutas a selectores de botones
+    const routePatterns = [
+        { pattern: /\/paquetes|\/editar_paquete|\/crear_paquete/, selector: '.sidebar a[href*="/paquetes"]' },
+        { pattern: /\/detalles_ventas|\/crear_detalle_venta|\/editar_detalle_venta|\/crear_venta|\/ver_ventas|\/ganancia_diaria/, selector: '.sidebar a[href*="/detalles_ventas"]' },
+        { pattern: /\/compras|\/carrito|\/detalles_compras/, selector: '.sidebar a[href*="/compras"]' },
+        { pattern: /\/empleados|\/editar_empleado|\/crear_empleado|\/crear_nota|\/ver_nomina/, selector: '.sidebar a[href*="/empleados"]' }
+    ];
+
+    // Buscar el patrón que coincida con la ruta actual
+    for (const { pattern, selector } of routePatterns) {
+        if (pattern.test(currentPath)) {
+            const activeButton = document.querySelector(selector);
+            if (activeButton) {
+                activeButton.classList.add('activo');
+            }
+            break; // Solo activar el primer patrón que coincida
+        }
+    }
+    // Si es '/', no activar ninguno (sidebar title)
+}
+
+// Ejecutar al cargar la página
+document.addEventListener('DOMContentLoaded', function() {
+    updateSidebarActiveButton();
+});
+
+
+
+    </script>
+</body>
+
+</html>

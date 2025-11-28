@@ -1,0 +1,36 @@
+<!-- Modal -->
+<div class="modal fade" id="crearVentaModal" tabindex="-1" aria-labelledby="crearVentaLabel">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-dark text-white">
+                <h5 class="modal-title" id="crearVentaLabel">Crear Venta</h5>
+                <button type="button" class="btn-close white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <p>¿Deseas crear una nueva venta con la fecha actual?</p>
+            </div>
+            <div class="modal-footer justify-content-center">
+                <a href="#" hx-post="{{ url_for('crear_venta') }}" hx-target="#ventas-tbody" hx-swap="beforeend" hx-on:htmx:after-request="console.log('HTMX after-request ejecutado'); closeModalAndResetForm()" class="btn btn-primary">
+                    Sí, crear venta
+                </a>
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+window.closeModalAndResetForm = function() {
+    console.log('=== CLOSE MODAL FUNCTION ===');
+    const modal = document.getElementById('crearVentaModal');
+
+    if (modal) {
+        // La lógica de accesibilidad ahora se maneja globalmente en base.html
+        // Solo necesitamos cerrar el modal usando Bootstrap
+        const bsModal = bootstrap.Modal.getInstance(modal) || new bootstrap.Modal(modal);
+        bsModal.hide();
+        console.log('Modal cerrado correctamente');
+    }
+};
+
+</script>

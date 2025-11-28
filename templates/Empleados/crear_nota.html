@@ -1,0 +1,201 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid px-4" style="padding-bottom: 5rem !important;">
+    <h2 class="text-center text-primary pag-titulo">Gestión de Notas</h2>
+
+    <!-- Formulario para crear nueva nota -->
+    <div class="row mb-4">
+        <div class="col-md-8 mx-auto">
+            <div class="card shadow-sm">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0"><i class="bi bi-plus-circle"></i> Nueva Nota</h5>
+                </div>
+                <div class="card-body">
+                    <form method="POST" action="{{ url_for('crear_nota', id=empleado_id)}}">
+                        <div class="row">
+                            <div class="col-md-8">
+                                <label for="asunto" class="form-label">Asunto:</label>
+                                <input type="text" class="form-control" id="asunto" name="asunto" 
+                                       placeholder="Escriba el asunto de la nota..." required>
+                            </div>
+                            <div class="col-md-4">
+                                <label for="fecha" class="form-label">Fecha:</label>
+                                <input type="date" class="form-control" id="fecha" name="fecha" 
+                                       value="{{ fecha_actual }}">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button type="submit" class="btn btn-success">
+                                <i class="bi bi-save"></i> Guardar Nota
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Lista de notas -->
+    <div class="row">
+        <div class="col-md-10 mx-auto">
+            <h4 class="mb-3">Mis Notas</h4>
+            
+            <!-- Filtros -->
+            <div class="row mb-3">
+                <div class="col-md-4">
+                    <select class="form-select" id="filtroEstado">
+                        <option value="todas">Todas las notas</option>
+                        <option value="pendientes">Solo pendientes</option>
+                        <option value="completadas">Solo completadas</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Contenedor de notas -->
+            <div id="listaNotas">
+                {% for nota in notas %}
+                <div class="nota-item mb-3 p-3 border rounded shadow-sm {% if nota.Estado == 'Completada' %}nota-completada{% endif %}" 
+                     data-estado="{% if nota.Estado == 'Completada' %}completada{% else %}pendiente{% endif %}">
+                    <div class="row align-items-center">
+                        <div class="col-md-1 text-center">
+                            <input type="checkbox" class="form-check-input nota-checkbox" 
+                                   data-nota-id="{{ nota.Id_Nota }}" 
+                                   {% if nota.Estado == 'Completada' %}checked{% endif %}>
+                        </div>
+                        <div class="col-md-8">
+                            <h6 class="mb-1 {% if nota.Estado == 'Completada' %}text-decoration-line-through text-muted{% endif %}">
+                                {{ nota.Asunto }}
+                            </h6>
+                            <small class="text-muted">
+                                <i class="bi bi-calendar"></i> {{ nota.FechaDelAsunto.strftime('%d/%m/%Y') }}
+                                {% if nota.nombre_empleado %}
+                                | <i class="bi bi-person"></i> {{ nota.nombre_empleado }}
+                                {% endif %}
+                            </small>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+                
+                {% if not notas %}
+                <div class="text-center text-muted py-5">
+                    <i class="bi bi-journal-text" style="font-size: 3rem;"></i>
+                    <p class="mt-3">No hay notas registradas</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+.nota-completada {
+    background-color: #f8f9fa;
+    opacity: 0.7;
+}
+
+.nota-item {
+    transition: all 0.3s ease;
+}
+
+.nota-item:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1) !important;
+}
+
+.nota-checkbox {
+    transform: scale(1.2);
+}
+</style>
+
+<script>
+// Filtrar notas por estado
+document.getElementById('filtroEstado').addEventListener('change', function() {
+    const filtro = this.value;
+    const notas = document.querySelectorAll('.nota-item');
+    
+    notas.forEach(nota => {
+        const estado = nota.getAttribute('data-estado');
+        
+        if (filtro === 'todas') {
+            nota.style.display = 'block';
+        } else if (filtro === 'pendientes' && estado === 'pendiente') {
+            nota.style.display = 'block';
+        } else if (filtro === 'completadas' && estado === 'completada') {
+            nota.style.display = 'block';
+        } else {
+            nota.style.display = 'none';
+        }
+    });
+});
+
+// Marcar nota como completada/pendiente
+document.addEventListener('change', function(e) {
+    if (e.target.classList.contains('nota-checkbox')) {
+        const notaId = e.target.getAttribute('data-nota-id');
+        const completada = e.target.checked;
+        
+        // Enviar petición AJAX para actualizar el estado
+        fetch('/marcar_nota', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nota_id: notaId,
+                completada: completada
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                const notaItem = e.target.closest('.nota-item');
+                const titulo = notaItem.querySelector('h6');
+                
+                if (completada) {
+                    notaItem.classList.add('nota-completada');
+                    notaItem.setAttribute('data-estado', 'completada');
+                    titulo.classList.add('text-decoration-line-through', 'text-muted');
+                } else {
+                    notaItem.classList.remove('nota-completada');
+                    notaItem.setAttribute('data-estado', 'pendiente');
+                    titulo.classList.remove('text-decoration-line-through', 'text-muted');
+                }
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            e.target.checked = !completada; // Revertir el cambio
+        });
+    }
+});
+
+// Eliminar nota
+function eliminarNota(notaId) {
+    if (confirm('¿Está seguro de que desea eliminar esta nota?')) {
+        fetch('/eliminar_nota', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({
+                nota_id: notaId
+            })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                location.reload(); // Recargar la página
+            } else {
+                alert('Error al eliminar la nota');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Error al eliminar la nota');
+        });
+    }
+}
+</script>
+
+{% endblock %}

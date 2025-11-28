@@ -1,0 +1,403 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    /* Prevenir scroll horizontal */
+    body, html {
+        overflow-x: hidden !important;
+        max-width: 100vw;
+    }
+    .select2-container .select2-dropdown .select2-results {
+        font-family: Georgia, 'Times New Roman', Times, serif !important;
+    }
+    
+    .container {
+        max-width: 100%;
+        overflow-x: hidden;
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+    
+    /* Estilos específicos para las cards con zoom */
+    .zoom-card {
+        max-width: 100%;
+        cursor: pointer;
+        position: relative;
+        transform-origin: center center;
+        will-change: transform;
+    }
+
+    .zoom-card:hover {
+        transform: scale(1.05) !important;
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3) !important;
+        z-index: 3 !important;
+    }
+    
+    /* Asegurar que las tarjetas no se desborden */
+    .card {
+        max-width: 100%;
+        overflow: visible !important;
+        border-radius: 12px;
+        border: 1px solid rgba(0, 0, 0, 0.1);
+    }
+    
+    .card-img-top {
+        position: relative;
+        z-index: 10;
+        pointer-events: none;
+        transition: transform 0.4s cubic-bezier(0.4,0,0.2,1), filter 0.4s;
+    }
+    .py-3 {
+        padding-top: 1rem !important;
+        padding-bottom: 1.5rem !important;
+    }
+    .card-img-top {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .zoom-card:hover .card-img-top {
+        transform: scale(1.15) translateY(25px);
+        filter: drop-shadow(0px 10px 4px #000000);
+    }
+    
+    /* Ajustes para el grid */
+    .row {
+        margin-left: 0;
+        margin-right: 0;
+        max-width: 100%;
+    }
+
+    
+    .col {
+        max-width: 100%;
+        overflow: visible !important;
+        padding-left: 10px;
+        padding-right: 15px;
+        margin: 0px 0 24px 0 !important;
+    }
+
+
+
+
+    
+    /* Estilos de paginación moderna */
+    .custom-pagination {
+        margin: auto;
+        width: fit-content;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        border-radius: 12px;
+        overflow: hidden;
+        background: white;
+        padding: 0.5rem;
+    }
+
+    .pagination-btn {
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 12px 16px !important;
+        margin: 0 2px !important;
+        font-weight: 600 !important;
+        font-size: 14px !important;
+        color: #6b7280 !important;
+        background: transparent !important;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+        display: inline-flex !important;
+        align-items: center !important;
+        gap: 6px !important;
+        text-decoration: none !important;
+        min-width: 44px !important;
+        justify-content: center !important;
+    }
+
+    .pagination-btn:hover {
+        background: #f3f4f6 !important;
+        color: #374151 !important;
+        transform: translateY(-1px) !important;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.12) !important;
+    }
+
+    .pagination-btn.active-page {
+        background: linear-gradient(135deg, #ef4444, #dc2626) !important;
+        color: white !important;
+        box-shadow: 0 4px 12px rgba(239, 68, 68, 0.4) !important;
+    }
+
+    .pagination-btn.active-page:hover {
+        background: linear-gradient(135deg, #dc2626, #b91c1c) !important;
+        transform: translateY(-1px) scale(1.05) !important;
+    }
+
+    .prev-btn, .next-btn {
+        font-weight: 700 !important;
+        color: #ef4444 !important;
+        background: linear-gradient(135deg, #fef2f2, #fee2e2) !important;
+        border: 1px solid #fecaca !important;
+    }
+
+    .prev-btn:hover, .next-btn:hover {
+        background: linear-gradient(135deg, #fee2e2, #fecaca) !important;
+        color: #dc2626 !important;
+        transform: translateY(-1px) scale(1.02) !important;
+        box-shadow: 0 6px 16px rgba(239, 68, 68, 0.25) !important;
+    }
+
+    .page-item.disabled .pagination-btn {
+        color: #9ca3af !important;
+        background: transparent !important;
+        cursor: not-allowed !important;
+    }
+
+    .page-item.disabled .pagination-btn:hover {
+        background: transparent !important;
+        transform: none !important;
+        box-shadow: none !important;
+    }
+
+    /* Responsive adjustments */
+    @media (max-width: 768px) {
+        .container {
+            padding-left: 10px;
+            padding-right: 10px;
+        }
+
+        .col {
+            padding-left: 5px;
+            padding-right: 5px;
+        }
+
+        .zoom-card:hover {
+            transform: scale(1.02) !important;
+        }
+
+        .custom-pagination {
+            padding: 0.25rem;
+        }
+
+        .pagination-btn {
+            padding: 8px 12px !important;
+            font-size: 13px !important;
+            min-width: 36px !important;
+        }
+
+        .prev-btn, .next-btn {
+            padding: 8px 10px !important;
+        }
+
+        .prev-btn svg, .next-btn svg {
+            width: 14px !important;
+            height: 14px !important;
+        }
+    }
+</style>
+
+
+<div class="container-fluid" style="padding-bottom: 5rem !important;">
+    <h5 class="text-center text-success pag-titulo">Lista de Productos</h5>
+
+    <!-- Cuadro de búsqueda -->
+    <form method="get" action="{{ url_for('ver_paquetes') }}" class="row g-2 mb-4">
+        <div class="d-flex justify-content-center align-items-center mb-3 gap-2" style="width: 100%;">
+            
+            <div class="d-flex justify-content-center align-items-stretch" style="width: 55%; position: relative;">
+                <div class="input-busqueda-container" style="border-top-right-radius: 0; border-bottom-right-radius: 0; border: none;">
+                    <input type="text" class="input-busqueda" style="font-family: Georgia, 'Times New Roman', Times, serif;" name="busqueda" id="busquedaInput" placeholder="Buscar por" value="{{ busqueda }}" autocomplete="off">
+                </div>
+                <div id="busquedaRecientes" class="dropdown-menu" style="position:absolute; left:0; top:100%; width:100%; z-index:9999;"></div>
+                {% if busqueda %}
+                <a href="{{ url_for('ver_paquetes') }}" class="btn btn-secondary" style="padding-top: auto !important;width: 50ñ; border-radius: 0 !important; background-color: #ffffff !important; color: #000000 !important; border: none !important; text-align: center;">
+                    <span class="icono-x"></span>
+                </a>
+                {% endif %}
+                <button type="submit" class="btn btn-primary" style="border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                    <span class="icono-busqueda"></span>
+                </button>
+            </div>
+            <label for="Filtros" class="label-filtros" style="margin-left: 30px;">Filtrar por</label>
+            <select name="Filtros" id="Filtros" class="form-select select2 select-filtros" style="border: none !important;">
+                <option value="Nombre" {% if filtro == 'Nombre' %}selected{% endif %}>Nombre</option>
+                <option value="Inventario" {% if filtro == 'Inventario' %}selected{% endif %}>Inventario</option>
+                <option value="TipoPaquete" {% if filtro == 'TipoPaquete' %}selected{% endif %}>Tipo de Paquete</option>
+            </select>
+        </div>
+    </form>
+
+    <div class="d-flex justify-content-between flex-wrap gap-2" style="margin-bottom: 45px;">
+        <!-- Botón para agregar nuevo producto -->
+        <div>
+            <a href="#" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#crearPaqueteModal" style="font-family: Georgia, 'Times New Roman', Times, serif;">
+                Agregar Producto
+            </a>
+        </div>
+    </div>
+
+    <!-- Diccionario de imágenes basado en la descripción -->
+    {% set imagenes = {
+        '1.25 Litros': '/static/Paquetes/1.25 Litros.png',
+        '2Litros cc': '/static/Paquetes/2Litros cc.png',
+        '2Litros Sabor': '/static/Paquetes/2Litros Sabor.png',
+        '2Litros Té': '/static/Paquetes/2Litros Té.png',
+        '3Litros cc': '/static/Paquetes/3Litros cc.png',
+        '3Litros Sabor': '/static/Paquetes/3Litros Sabor.png',
+        '3Litros Valle': '/static/Paquetes/3Litros Valle.png',
+        '6.5 Onzas': '/static/Paquetes/6.5 Onzas.png',
+        '12 Onzas': '/static/Paquetes/12 Onzas.png',
+        '1/2Litro': '/static/Paquetes/12Litro.png',
+        '355ml Hic Té': '/static/Paquetes/355ml Hic Té.png',
+        '355ml': '/static/Paquetes/355ml.png',
+        '500ml Fuze': '/static/Paquetes/500ml Fuze.png',
+        '500ml': '/static/Paquetes/500ml.png',
+        'Alpina 2Litros': '/static/Paquetes/Alpina 2Litros.png',
+        'Alpina 600ml': '/static/Paquetes/Alpina 600ml.png',
+        'Alpina Litro': '/static/Paquetes/Alpina Litro.png',
+        'Fury Energy': '/static/Paquetes/Fury Energy.png',
+        'Hic': '/static/Paquetes/Hic.png',
+        'Lata': '/static/Paquetes/Lata.png',
+        'Litro Termo': '/static/Paquetes/Litro Termo.png',
+        'Litro': '/static/Paquetes/Litro.png',
+        'Mini latas': '/static/Paquetes/Mini latas.png',
+        'Power': '/static/Paquetes/Power.png',
+        'Retornable': '/static/Paquetes/Retornable.png',
+        'Té': '/static/Paquetes/Té.png',
+        'Valle 500ml': '/static/Paquetes/Valle 500ml.png',
+        'Valle 12 Onza': '/static/Paquetes/Valle 12 Onza.png',
+        'Default': '/static/img/Paquetes/default.png'
+    } %}
+
+    <!-- Colores personalizados para cada tarjeta -->
+    {% set colores = ['#e0f7fa', '#f1f8e9', '#fff8e1', '#fce4ec', '#e8eaf6', '#ede7f6', '#fbe9e7', '#e0f2f1', '#f9fbe7', '#f3e5f5'] %}
+
+    <!-- Tarjetas de productos -->
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        {% for paquete in paquetes %}
+        {% set nombre_archivo = paquete.Descripcion | sanitize ~ '.png' %}
+        {% set ruta_imagen = '/static/Paquetes/' ~ nombre_archivo %}
+        {% set imagen = ruta_imagen if nombre_archivo in lookup_files else '/static/Paquetes/PorDefecto.webp' %}
+        {% set color = colores[loop.index0 % colores|length] %}
+        <div class="col">
+            <div class="card h-100 text-center shadow-sm zoom-card" style="--bg: {{ color }}; --img-url: url('{{ imagen }}');">
+                <div class="contenedor-botones-ED">
+                    <!-- <a href="#" class="eliminar_image botones-ED"></a> -->
+                    <a href="{{ url_for('editar_paquete', id=paquete.Id_Paquete) }}" class="editar_image botones-ED" data-ajax="true"></a>
+                </div>
+                <div class="img-bg-anim">
+                    <img src="{{ imagen }}?t={{ timestamp }}" class="card-img-top floating-img" alt="Imagen del producto">
+                </div>
+                <div class="card-body">
+                    <h5 class="card-title text-success">{{ paquete.Descripcion }}</h5>
+                    <div class="card-text" style="padding: 45px 0px;">
+
+                        <div class="info-mostrable">
+
+                           <div class="Inventario info-paq">
+                               <span class="icono-paq iconos"></span>
+                               <strong>Inventario</strong><br> 
+                               <label class="text-inf">{{ paquete.Inventario }}</label>
+                           </div>
+                           
+                           <div class="TipoPaquete info-paq">
+                               <span class="icono-tipo iconos"></span>
+                               <strong>Tipo</strong><br> 
+                               <label class="text-inf">{{ paquete.TipoPaquete }}</label>
+                           </div>
+
+                           <div class="PrecioVenta_Paq info-paq">
+                               <strong>Precio Venta</strong><br> 
+                               <label class="text-inf">C${{ paquete.PrecioVenta_Paq }}</label>
+                           </div>
+
+                           <div class="PrecioCompra_Paq info-paq">
+                               <strong>Precio Compra</strong><br> 
+                               <label class="text-inf">C${{ paquete.PrecioCompra_Paq }}</label>
+                           </div>
+                        </div>
+
+                        <div class="info-interactiva">
+                            
+                            <div class="UnidadesSobrantes info-paq">
+                                <strong>En Unidades</strong><br> 
+                                <label class="text-inf">{{ paquete.UnidadesSobrantes }}</label>
+                            </div>
+
+                            <div class="PaquetesCompletos info-paq">
+                                <strong>En Paquetes</strong><br> 
+                                <label class="text-inf">{{ paquete.PaquetesCompletos }}</label>
+                            </div>
+
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- Paginación -->
+    {% if total_pages > 1 %}
+    <nav aria-label="Paginación de paquetes" class="mt-4">
+        <ul class="pagination justify-content-center custom-pagination">
+            <!-- Botón Anterior -->
+            {% if page > 1 %}
+            <li class="page-item">
+                <a class="page-link pagination-btn prev-btn" href="{{ url_for('ver_paquetes', page=page-1, busqueda=busqueda, Filtros=filtro) }}" aria-label="Anterior">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Anterior
+                </a>
+            </li>
+            {% endif %}
+
+            <!-- Números de página -->
+            {% set start_page = [1, page - 2]|max %}
+            {% set end_page = [total_pages, page + 2]|min %}
+
+            {% if start_page > 1 %}
+            <li class="page-item">
+                <a class="page-link pagination-btn" href="{{ url_for('ver_paquetes', page=1, busqueda=busqueda, Filtros=filtro) }}">1</a>
+            </li>
+            {% if start_page > 2 %}
+            <li class="page-item disabled">
+                <span class="page-link pagination-btn">...</span>
+            </li>
+            {% endif %}
+            {% endif %}
+
+            {% for p in range(start_page, end_page + 1) %}
+            <li class="page-item {% if p == page %}active{% endif %}">
+                <a class="page-link pagination-btn {% if p == page %}active-page{% endif %}" href="{{ url_for('ver_paquetes', page=p, busqueda=busqueda, Filtros=filtro) }}">{{ p }}</a>
+            </li>
+            {% endfor %}
+
+            {% if end_page < total_pages %}
+            {% if end_page < total_pages - 1 %}
+            <li class="page-item disabled">
+                <span class="page-link pagination-btn">...</span>
+            </li>
+            {% endif %}
+            <li class="page-item">
+                <a class="page-link pagination-btn" href="{{ url_for('ver_paquetes', page=total_pages, busqueda=busqueda, Filtros=filtro) }}">{{ total_pages }}</a>
+            </li>
+            {% endif %}
+
+            <!-- Botón Siguiente -->
+            {% if page < total_pages %}
+            <li class="page-item">
+                <a class="page-link pagination-btn next-btn" href="{{ url_for('ver_paquetes', page=page+1, busqueda=busqueda, Filtros=filtro) }}" aria-label="Siguiente">
+                    Siguiente
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                </a>
+            </li>
+            {% endif %}
+        </ul>
+    </nav>
+    {% endif %}
+</div>
+{% endblock %}
+
+{% block modals %}
+<div data-modals>
+    {% include 'Productos/crear_paquetes.html' %}
+</div>
+{% endblock %}

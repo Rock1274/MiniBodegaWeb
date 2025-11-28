@@ -1,0 +1,142 @@
+// {% extends "base.html" %}
+{% block content %}
+<div class="container mt-4">
+    <h2 class="text-center text-success pag-titulo">Carrito - Nueva Compra</h2>
+    <p style="color: rgba(255, 255, 255, 0.7);"><strong>Fecha:</strong> {{ compra.FechaDeCompra }}</p>
+
+    <!-- 🔎 Buscar producto -->
+    <form method="GET" action="{{ url_for('carrito', id_compra=compra.Id_Compra) }}" class="mb-3 d-flex">
+        <input type="text" name="buscar" class="form-control me-2" placeholder="Buscar producto" value="{{ buscar }}">
+        <button type="submit" class="btn btn-primary me-2">Buscar</button>
+        <a href="{{ url_for('carrito', id_compra=compra.Id_Compra) }}" class="btn btn-secondary">Ver todos</a>
+    </form>
+
+    <!-- 📦 Productos disponibles -->
+    <h4>Productos disponibles</h4>
+    <table class="table table-hover">
+        <thead class="table-light">
+            <tr>
+                <th>Producto</th>
+                <th>Precio Compra</th>
+                <th>Cantidad</th>
+                <th></th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for p in paquetes %}
+            <tr>
+                <td>{{ p.Descripcion }}</td>
+                <td>{{ "%.2f"|format(p.PrecioCompra_Paq) }}</td>
+                <td><input type="number" id="cant_{{ p.Id_Paquete }}" value="1" min="1" class="form-control" style="width: 80px;"></td>
+                <td><button class="btn btn-success" onclick="agregarProducto('{{ p.Id_Paquete }}')">Agregar</button></td>
+            </tr>
+            {% else %}
+            <tr><td colspan="4" class="text-center">No se encontraron productos</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- 🛒 Carrito actual -->
+    <h4>Carrito</h4>
+    <table class="table table-bordered" id="carrito_tabla">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Total c/ IVA</th>
+                <th>Acción</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for d in carrito %}
+            <tr>
+                <td>{{ d.Producto }}</td>
+                <td>{{ d.Cantidad }}</td>
+                <td>{{ "%.2f"|format(d.TotalConIVA) }}</td>
+                <td>
+                    <button class="btn btn-danger btn-sm" onclick="eliminarProducto('{{ d.Id_DetalleDeCompra }}')">Eliminar</button>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="4" class="text-center">No hay productos en el carrito</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <!-- ✅ Finalizar o cancelar -->
+    <div class="d-flex justify-content-between mt-3">
+        <a href="{{ url_for('cancelar_compra', id_compra=compra.Id_Compra) }}" class="btn btn-secondary">Cancelar compra</a>
+        <a href="{{ url_for('finalizar_compra', id_compra=compra.Id_Compra) }}" class="btn btn-primary">Finalizar compra</a>
+    </div>
+</div>
+
+<!-- Cancelación auto de carrito al salir -->
+<script>
+window.addEventListener("beforeunload", function (event) {
+    // Detecta si el usuario intenta cerrar, recargar o salir de la página
+    navigator.sendBeacon("/carrito/{{ compra.Id_Compra }}/cancelar_exit");
+});
+
+// Detecta clics en enlaces del sidebar u otros
+document.querySelectorAll("a").forEach(link => {
+    link.addEventListener("click", function (e) {
+        const href = this.getAttribute("href");
+
+        // Si el enlace NO es para finalizar la compra o cancelar manualmente
+        if (!href.includes("finalizar") && !href.includes("cancelar") && !href.includes("#")) {
+            fetch("/carrito/{{ compra.Id_Compra }}/cancelar_exit", { method: "POST" });
+        }
+    });
+});
+</script>
+
+<!-- Agregar producto al carrito sin recargar toda la página -->
+<script>
+function agregarProducto(idPaquete) {
+    const cantidad = document.getElementById(`cant_${idPaquete}`).value;
+    const url = `/carrito/{{ compra.Id_Compra }}/agregar`;
+
+    fetch(url, {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: `id_paquete=${idPaquete}&cantidad=${cantidad}`
+    })
+    .then(response => {
+        if (!response.ok) throw new Error("Error al agregar");
+        // Actualizar solo la tabla del carrito sin recargar
+        return fetch(`/carrito/{{ compra.Id_Compra }}?partial=1`);
+    })
+    .then(response => response.text())
+    .then(html => {
+        // Reemplaza el cuerpo del carrito con el nuevo contenido
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const nuevoCarrito = doc.querySelector("#carrito_tabla");
+        document.querySelector("#carrito_tabla").innerHTML = nuevoCarrito.innerHTML;
+    })
+    .catch(err => console.error(err));
+}
+
+function eliminarProducto(idDetalle) {
+    const url = `/carrito/{{ compra.Id_Compra }}/eliminar/${idDetalle}`;
+
+    fetch(url, { method: "DELETE" })
+    .then(response => {
+        if (!response.ok) throw new Error("Error al eliminar producto");
+        // Refresca solo el carrito
+        return fetch(`/carrito/{{ compra.Id_Compra }}?partial=1`);
+    })
+    .then(response => response.text())
+    .then(html => {
+        const parser = new DOMParser();
+        const doc = parser.parseFromString(html, "text/html");
+        const nuevoCarrito = doc.querySelector("#carrito_tabla");
+        document.querySelector("#carrito_tabla").innerHTML = nuevoCarrito.innerHTML;
+    })
+    .catch(err => console.error(err));
+}
+</script>
+
+{% endblock %}

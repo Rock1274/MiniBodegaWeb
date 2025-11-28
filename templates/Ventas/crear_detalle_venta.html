@@ -1,0 +1,227 @@
+<div class="modal fade" id="crearDetVentaModal" tabindex="-1" aria-labelledby="crearVentaLabel">
+    <div class="modal-dialog modal-dialog-centered modal-lg modal-personalizado">
+        <div class="modal-content shadow-lg">
+            <div class="modal-header bg-dark text-white text-center">
+                <h5 class="modal-title">Agregar Detalle de Venta</h5>
+                <button type="button" class="btn-close white" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form method="post" hx-post="/detalles_ventas" hx-target="#detalles-ventas-tbody" hx-swap="beforeend" hx-target-error="#error-container" hx-swap-error="innerHTML" hx-on:htmx:after-request="closeModalAndResetForm()">
+                    <div class="mb-3">
+                        <label for="dv_id_venta" class="form-label">Venta</label>
+                        <input type="number" name="dv_id_venta" id="dv_id_venta" class="form-control" min="1"
+                            max="{{ max_id_venta }}" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dv_paquete_id" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Producto</span>
+                            <small class="form-text text-muted" id="dv-inventario-actual">
+                            Seleccione un paquete para ver el inventario.
+                            </small>
+                        </label>
+                        <select class="form-select" id="dv_paquete_id" name="dv_paquete_id" required>
+                            <option selected disabled>Seleccione un producto</option>
+                            {% for paquete in paquetes %}
+                            <option value="{{ paquete.Id_Paquete }}" dv-data-inventario="{{ paquete.Inventario }}"  
+                                dv-data-paquetes="{{ paquete.PaquetesCompletos }}" dv-data-unidades="{{ paquete.UnidadesSobrantes }}"
+                                dv-data-tipo="{{ paquete.TipoPaquete }}">
+                                {{ paquete.Descripcion }}
+                            </option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="dv_paquetes_finales" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Paquetes Finales</span>
+                            <small class="form-text text-muted" id="dv-inventario-paq"></small>
+                        </label>
+                        <input type="number" class="form-control" id="dv_paquetes_finales" name="dv_paquetes_finales"
+                            min="0" max="" required>
+                        
+                    </div>
+                    <div class="mb-3">
+                        <label for="dv_unidades_finales" class="form-label d-flex justify-content-between align-items-center">
+                            <span>Unidades</span>
+                            <small class="form-text text-muted" id="dv-inventario-und"></small>
+                        </label>
+                        <input type="number" class="form-control" id="dv_unidades_finales" name="dv_unidades_finales"
+                            min="0" required>
+                        <div class="invalid-feedback" id="dv-unidades-error"></div>
+                    </div>
+                    <div id="error-container"></div>
+                    <div class="modal-footer">
+                        <button type="submit" class="btn_guardar_dv btn btn-primary">Guardar</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+
+<script>
+    console.log('Script de crear_detalle_venta.html cargado');
+
+    function initializeScript() {
+        console.log('Inicializando script del modal de venta');
+
+        // Event listener principal
+        const paqueteSelect = document.getElementById('dv_paquete_id');
+        if (paqueteSelect) {
+            console.log('Asignando event listener a dv_paquete_id');
+            paqueteSelect.addEventListener('change', function () {
+                console.log('Evento change ejecutado en dv_paquete_id');
+                var selected = this.options[this.selectedIndex];
+                var inventario_paqt = selected.getAttribute('dv-data-paquetes');
+                var inventario_unid = selected.getAttribute('dv-data-unidades');
+                var inventario = selected.getAttribute('dv-data-inventario');
+                var tipoPaquete = selected.getAttribute('dv-data-tipo');
+
+                document.getElementById('dv-inventario-actual').textContent = 'Inventario: ' + inventario;
+                document.getElementById('dv-inventario-paq').textContent = 'Inventario en paquetes: ' + inventario_paqt;
+                document.getElementById('dv-inventario-und').textContent = 'Inventario en unidades: ' + inventario_unid;
+
+                // actualizar el atributo max del input de paquetes
+                document.getElementById('dv_paquetes_finales').max = inventario_paqt;
+            });
+        } else {
+            console.error('Error: dv_paquete_id no encontrado');
+        }
+
+        // Función de validación en tiempo real de unidades sobrantes
+        function initializeUnidadesValidation() {
+            const paqueteSelect = document.getElementById('dv_paquete_id');
+            const unidadesInput = document.getElementById('dv_unidades_finales');
+            const unidadesError = document.getElementById('dv-unidades-error');
+            const submitButton = document.querySelector('.btn_guardar_dv');
+
+            // Si no existen los elementos, salir
+            if (!paqueteSelect || !unidadesInput || !unidadesError || !submitButton) {
+                console.log('Elementos no encontrados para validación');
+                return;
+            }
+
+            function validateUnidades() {
+                // Obtener el tipo de paquete del producto seleccionado
+                const selectedOption = paqueteSelect.options[paqueteSelect.selectedIndex];
+                const tipoPaquete = selectedOption ? parseInt(selectedOption.getAttribute('dv-data-tipo')) || 0 : 0;
+                const unidades = parseInt(unidadesInput.value) || 0;
+
+                // Actualizar el atributo max del input
+                unidadesInput.max = tipoPaquete;
+
+                if (unidades > tipoPaquete) {
+                    // Actualizar el mensaje de error dinámicamente
+                    unidadesError.textContent = `No pueden sobrar ${unidades} unidades en un paquete de ${tipoPaquete} unidades`;
+                    unidadesInput.classList.add('is-invalid');
+                    submitButton.disabled = true;
+                    return false;
+                } else {
+                    // Restaurar el mensaje original
+                    unidadesError.textContent = '';
+                    unidadesInput.classList.remove('is-invalid');
+                    submitButton.disabled = false;
+                    return true;
+                }
+            }
+
+            // Remover event listeners anteriores para evitar duplicados
+            paqueteSelect.removeEventListener('change', validateUnidades);
+            unidadesInput.removeEventListener('input', validateUnidades);
+
+            // Agregar event listeners
+            paqueteSelect.addEventListener('change', validateUnidades);
+            unidadesInput.addEventListener('input', validateUnidades);
+
+            // Validar al enviar el formulario
+            const form = document.querySelector('form');
+            if (form) {
+                // Remover event listener anterior
+                form.removeEventListener('submit', formSubmitHandler);
+
+                // Agregar nuevo event listener
+                form.addEventListener('submit', formSubmitHandler);
+            }
+
+            // Validar al cargar la página
+            validateUnidades();
+        }
+
+        // Handler para el submit del formulario
+        function formSubmitHandler(e) {
+            const paqueteSelect = document.getElementById('dv_paquete_id');
+            const unidadesInput = document.getElementById('dv_unidades_finales');
+
+            if (!paqueteSelect || !unidadesInput) return;
+
+            const selectedOption = paqueteSelect.options[paqueteSelect.selectedIndex];
+            const tipoPaquete = selectedOption ? parseInt(selectedOption.getAttribute('dv-data-tipo')) || 0 : 0;
+            const unidades = parseInt(unidadesInput.value) || 0;
+
+            if (unidades > tipoPaquete) {
+                e.preventDefault();
+                alert('Por favor, corrige los errores antes de enviar el formulario.');
+            }
+        }
+
+        // Inicializar validación
+        initializeUnidadesValidation();
+    }
+
+    // Ejecutar cuando el DOM esté listo
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initializeScript);
+    } else {
+        initializeScript();
+    }
+
+    // Re-ejecutar después de carga AJAX
+    document.addEventListener('contentLoaded', function(event) {
+        console.log('Evento contentLoaded recibido para:', event.detail ? event.detail.url : 'sin detalle');
+        console.log('Re-ejecutando script después de AJAX');
+        initializeScript();
+    });
+
+    // Función para cerrar modal y resetear formulario después de éxito HTMX
+    function closeModalAndResetForm() {
+        // Usar el botón de cerrar para evitar conflictos con Bootstrap
+        const closeButton = document.querySelector('#crearDetVentaModal .btn-close');
+        if (closeButton) {
+            closeButton.click();
+        } else {
+            // Fallback: manipulación directa
+            const modal = document.getElementById('crearDetVentaModal');
+            if (modal) {
+                modal.classList.remove('show');
+                modal.style.display = 'none';
+                document.body.classList.remove('modal-open');
+                setTimeout(() => {
+                    const backdrop = document.querySelector('.modal-backdrop');
+                    if (backdrop) {
+                        backdrop.remove();
+                    }
+                }, 300); // Dar tiempo a la transición
+            }
+        }
+        // Resetear formulario con delay
+        setTimeout(() => {
+            const form = document.querySelector('#crearDetVentaModal form');
+            if (form) {
+                form.reset();
+            }
+            // Limpiar contenedor de errores
+            const errorContainer = document.getElementById('error-container');
+            if (errorContainer) {
+                errorContainer.innerHTML = '';
+            }
+            // Resetear textos de inventario
+            const inventarioActual = document.getElementById('dv-inventario-actual');
+            if (inventarioActual) inventarioActual.textContent = 'Seleccione un paquete para ver el inventario.';
+            const inventarioPaq = document.getElementById('dv-inventario-paq');
+            if (inventarioPaq) inventarioPaq.textContent = '';
+            const inventarioUnd = document.getElementById('dv-inventario-und');
+            if (inventarioUnd) inventarioUnd.textContent = '';
+        }, 500);
+    }
+</script>

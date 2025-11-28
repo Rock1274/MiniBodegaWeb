@@ -1,0 +1,150 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid px-4" style="padding-bottom: 5rem !important;">
+    <div class="row">
+        <div class="col-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2 class="text-primary pag-titulo">Editar Empleado</h2>
+            </div>
+        </div>
+    </div>
+
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-xl-6">
+            <div class="card shadow-lg">
+                <div class="card-header bg-dark text-white text-center">
+                    <h5 class="mb-0">Información del Empleado</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" data-no-ajax action="{{ url_for('editar_empleado', id=empleado.Id_Empleado) }}">
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="primer_nombre" class="form-label">Primer Nombre</label>
+                                <input type="text" name="primer_nombre" id="primer_nombre" class="form-control" 
+                                       value="{{ empleado.PNombre or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="segundo_nombre" class="form-label">Segundo Nombre</label>
+                                <input type="text" name="segundo_nombre" id="segundo_nombre" class="form-control" 
+                                       value="{{ empleado.SNombre or '' }}">
+                            </div>
+                        </div>
+                        
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="primer_apellido" class="form-label">Apellido Paterno</label>
+                                <input type="text" name="primer_apellido" id="primer_apellido" class="form-control" 
+                                       value="{{ empleado.PApellido or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="segundo_apellido" class="form-label">Apellido Materno</label>
+                                <input type="text" name="segundo_apellido" id="segundo_apellido" class="form-control" 
+                                       value="{{ empleado.SApellido or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="cedula" class="form-label">Número de Cédula</label>
+                                <input type="text" name="cedula" id="cedula" class="form-control" 
+                                       value="{{ empleado.NumCedula or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="estado_civil" class="form-label">Estado Civil</label>
+                                <select class="form-select" id="estado_civil" name="estado_civil" required>
+                                    <option value="" disabled>Seleccione una opción</option>
+                                    <option value="Soltero(a)" {% if empleado.EstadoCivil == 'Soltero(a)' %}selected{% endif %}>Soltero(a)</option>
+                                    <option value="Casado(a)" {% if empleado.EstadoCivil == 'Casado(a)' %}selected{% endif %}>Casado(a)</option>
+                                    <option value="Divorciado(a)" {% if empleado.EstadoCivil == 'Divorciado(a)' %}selected{% endif %}>Divorciado(a)</option>
+                                    <option value="Viudo(a)" {% if empleado.EstadoCivil == 'Viudo(a)' %}selected{% endif %}>Viudo(a)</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="sexo" class="form-label">Sexo</label>
+                                <select class="form-select" id="sexo" name="sexo" required>
+                                    <option value="" disabled>Seleccione una opción</option>
+                                    <option value="Masculino" {% if empleado.Sexo == 'Masculino' %}selected{% endif %}>Masculino</option>
+                                    <option value="Femenino" {% if empleado.Sexo == 'Femenino' %}selected{% endif %}>Femenino</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha_nacimiento" class="form-label">Fecha de Nacimiento</label>
+                                <input type="date" name="fecha_nacimiento" id="fecha_nacimiento" class="form-control" 
+                                       value="{{ empleado.FechaDeNacimiento or '' }}" required>
+                            </div>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha_Inicontrato" class="form-label">Fecha de Inicio de Contrato</label>
+                                <input type="date" name="fecha_Inicontrato" id="fecha_Inicontrato" class="form-control" 
+                                       value="{{ empleado.FechaDeInicioContrato or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="fecha_Fincontrato" class="form-label">Fecha de Fin de Contrato</label>
+                                <input type="date" name="fecha_Fincontrato" id="fecha_Fincontrato" class="form-control" 
+                                       value="{{ empleado.FechaDeFinContrato or '' }}">
+                            </div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="direccion" class="form-label">Dirección</label>
+                            <input type="text" name="direccion" id="direccion" class="form-control" 
+                                   value="{{ empleado.Direccion or '' }}" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="num" class="form-label">Número INSS</label>
+                                <input type="text" name="num" id="num" class="form-control" 
+                                       value="{{ empleado.NumInss or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="num2" class="form-label">Número RUC</label>
+                                <input type="text" name="num2" id="num2" class="form-control" 
+                                       value="{{ empleado.RUC or '' }}" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="estado" class="form-label">Estado</label>
+                                <select class="form-select" id="estado" name="estado" required>
+                                    <option value="" disabled>Seleccione una opción</option>
+                                    <option value="Activo" {% if empleado.Estado == 'Activo' %}selected{% endif %}>Activo</option>
+                                    <option value="Inactivo" {% if empleado.Estado == 'Inactivo' %}selected{% endif %}>Inactivo</option>
+                                </select>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="salarioBase" class="form-label">Salario Base</label>
+                                <input type="text" name="salarioBase" id="salarioBase" class="form-control" 
+                                       value="{{ empleado.SalarioBase or '' }}" >
+                            </div>
+                            
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="supervisor" class="form-label">Supervisor</label>
+                            <select name="supervisor" id="supervisor" class="form-select">
+                                <option value="">Sin supervisor</option>
+                                {% for s in supervisores %}
+                                    <option value="{{ s.Id_Empleado }}" {% if empleado.Supervisor == s.Id_Empleado %}selected{% endif %}>
+                                        {{ s.Nombres }} {{ s.Apellidos }}
+                                    </option>
+                                {% endfor %}
+                            </select>
+                        </div>
+
+                        <div class="d-flex justify-content-end gap-2 mt-4">
+                            <a href="{{ url_for('ver_empleados') }}" class="btn btn-secondary">Cancelar</a>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-save"></i> Actualizar Empleado
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

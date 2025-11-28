@@ -1,0 +1,73 @@
+{% extends 'base.html' %}
+{% block content %}
+<div class="container-fluid px-4" style="padding-bottom: 5rem !important;">
+    <h2 class="text-center text-primary pag-titulo">Nómina de Empleados</h2>
+
+    <!-- Selector de empleado -->
+    <div class="row mb-4">
+        <div class="col-md-6">
+            <label for="selectEmpleado" class="form-label label-filtros">Seleccionar Empleado:</label>
+            <select class="form-select" id="selectEmpleado" name="empleado_id">
+                <option value="" disabled selected style="text-align: center;"> Seleccionar Empleado </option>
+                {% for emp in empleados %}
+                <option value="{{ emp.Id_Empleado }}">{{ emp.Nombres }} {{ emp.Apellidos }}</option>
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+
+    <!-- Tabla de nómina -->
+    <div class="table-responsive table-overflow-x">
+        <table class="table table-bordered table-striped table-hover shadow-sm align-middle table-ellipsis" id="tablaNomina">
+            <thead class="table-dark text-center">
+                <tr>
+                    <th>Nombre Completo</th>
+                    <th>Cargo</th>
+                    <th>Salario Base</th>
+                    <th>Horas Trabajadas</th>
+                    <th>Horas Extra</th>
+                    <th>Bonificaciones</th>
+                    <th>Descuentos</th>
+                    <th>Salario Neto</th>
+                    <th>Período</th>
+                </tr>
+            </thead>
+            <tbody id="tbodyNomina">
+                <tr>
+                    <td colspan="10" class="text-center text-muted">
+                        Seleccione un empleado para generar la nómina
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>
+
+<script>
+document.getElementById('selectEmpleado').addEventListener('change', function() {
+    const empleadoId = this.value;
+    const tbody = document.getElementById('tbodyNomina');
+    
+    if (!empleadoId) {
+        tbody.innerHTML = `
+            <tr>
+                <td colspan="10" class="text-center text-muted">
+                    Seleccione un empleado para generar la nómina
+                </td>
+            </tr>
+        `;
+        return;
+    }
+    
+    // Aquí irá la lógica para generar la nómina dinámicamente
+    tbody.innerHTML = `
+        <tr>
+            <td colspan="10" class="text-center text-muted">
+                Generando nómina para el empleado seleccionado...
+            </td>
+        </tr>
+    `;
+});
+</script>
+
+{% endblock %}

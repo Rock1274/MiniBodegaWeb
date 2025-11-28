@@ -1,0 +1,6 @@
+Flask
+pyodbc
+gunicorn
+python-dotenv
+beautifulsoup4
+flask-cors

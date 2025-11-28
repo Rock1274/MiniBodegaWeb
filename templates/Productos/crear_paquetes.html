@@ -1,0 +1,192 @@
+<!-- Modal -->
+<style>
+    .link-recorte {
+        position: relative; /* Necesario para posicionar el ::before */
+        color: #990a0a;
+        text-decoration: none;
+        transition: transform 0.3s ease-in-out; /* Mantén la transición para el scale si lo usas */
+    }
+
+    .link-recorte::before {
+        content: '';
+        position: absolute;
+        bottom: 0; /* Posición en la parte inferior */
+        left: 0;
+        width: 0; /* Inicialmente sin ancho */
+        height: 1px; /* Grosor de la línea */
+        background-color: #990a0a;
+        transition: width 0.3s ease-in-out; /* Transición para el ancho */
+    }
+
+    .link-recorte:hover::before {
+        width: 100%; /* La línea se expande al 100% del ancho del enlace */
+    }
+</style>
+    <div class="modal fade" id="crearPaqueteModal" tabindex="-1" aria-labelledby="crearPaqueteLabel" data-modals>
+        <div class="modal-dialog modal-dialog-centered modal-lg modal-personalizado">
+            <div class="modal-content shadow-lg">
+                <div class="modal-header bg-dark text-white text-center">
+                    <h5 class="modal-title" id="crearPaqueteLabel">Agregar Nuevo Paquete</h5>
+                    <button type="button" class="btn-close white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+                </div>
+                <div class="modal-body">
+                    <form method="post" enctype="multipart/form-data" data-no-ajax>
+                        <div class="mb-3">
+                            <label for="descripcion" class="form-label">Producto</label>
+                            <input type="text" class="form-control" id="descripcion" name="Descripcion" required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tipo" class="form-label">Tipo de Paquete</label>
+                            <select class="form-select" id="tipo" name="TipoPaquete" required>
+                                <option value="" disabled selected>Seleccione una opción</option>
+                                <option value="6">6 unidades</option>
+                                <option value="8">8 unidades</option>
+                                <option value="12">12 unidades</option>
+                                <option value="24">24 unidades</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="UnidadesSobrantes" class="form-label">Unidades Sobrantes </label>
+                            <input type="number" step="1" class="form-control" id="UnidadesSobrantes" name="UnidadesSobrantes" min="0" max="24">
+                            <div class="invalid-feedback" id="unidades-error"></div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="precio_compra" class="form-label">Paquetes Completos</label>
+                            <input type="number" step="1" class="form-control" id="PaquetesCompletos" name="PaquetesCompletos">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="precio_compra" class="form-label">Precio de Compra</label>
+                            <input type="number" step="0.01" class="form-control" id="precio_compra" name="PrecioCompra_Paq">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="precio_compra" class="form-label">Precio de Venta</label>
+                            <input type="number" step="0.01" class="form-control" id="precio_venta" name="PrecioVenta_Paq">
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="imagen" class="form-label">Imagen del Producto</label>
+                            <input type="file" class="form-control" name="imagen" id="imagen" accept="image/*">
+                            
+                            <!-- Vista previa de la imagen -->
+                            <div id="preview-container" class="mt-3" style="display: none;">
+                                <div class="card">
+                                    <div class="card-header bg-light">
+                                        <h6 class="mb-0">Vista Previa de la Imagen</h6>
+                                    </div>
+                                    <div class="card-body text-center">
+                                        <img id="image-preview" src="" alt="Vista previa" class="img-fluid" style="max-height: 200px; max-width: 100%;">
+                                        <div class="mt-2">
+                                            <small>
+                                                ¿Desea recortar la imagen?
+                                                <a href="https://www.photoroom.com/es/herramientas/eliminador-de-fondos" target="_blank" class="link-recorte">
+                                                    Click aqui
+                                                </a>
+                                            </small>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="modal-footer">
+                            <button type="submit" class="btn btn-primary">Guardar</button>
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancelar</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+<script>
+// Función de validación en tiempo real de unidades sobrantes
+function initializeUnidadesValidation() {
+    const tipoSelect = document.getElementById('tipo');
+    const unidadesInput = document.getElementById('UnidadesSobrantes');
+    const unidadesError = document.getElementById('unidades-error');
+    const submitButton = document.querySelector('button[type="submit"]');
+
+    // Si no existen los elementos, salir
+    if (!tipoSelect || !unidadesInput || !unidadesError || !submitButton) {
+        return;
+    }
+
+    function validateUnidades() {
+        const tipoSeleccionado = parseInt(tipoSelect.value) || 0;
+        const unidades = parseInt(unidadesInput.value) || 0;
+        
+        // Actualizar el atributo max del input
+        unidadesInput.max = tipoSeleccionado;
+        
+        if (unidades > tipoSeleccionado) {
+            // Actualizar el mensaje de error dinámicamente
+            unidadesError.textContent = `No pueden sobrar ${unidades} unidades en un paquete de ${tipoSeleccionado} unidades`;
+            unidadesInput.classList.add('is-invalid');
+            submitButton.disabled = true;
+            return false;
+        } else {
+            // Restaurar el mensaje original
+            unidadesError.textContent = '';
+            unidadesInput.classList.remove('is-invalid');
+            submitButton.disabled = false;
+            return true;
+        }
+    }
+
+    // Remover event listeners anteriores para evitar duplicados
+    tipoSelect.removeEventListener('change', validateUnidades);
+    unidadesInput.removeEventListener('input', validateUnidades);
+    
+    // Agregar event listeners
+    tipoSelect.addEventListener('change', validateUnidades);
+    unidadesInput.addEventListener('input', validateUnidades);
+    
+    // Validar al enviar el formulario
+    const form = document.querySelector('form');
+    if (form) {
+        // Remover event listener anterior
+        form.removeEventListener('submit', formSubmitHandler);
+        
+        // Agregar nuevo event listener
+        form.addEventListener('submit', formSubmitHandler);
+    }
+    
+    // Validar al cargar la página
+    validateUnidades();
+}
+
+// Handler para el submit del formulario
+function formSubmitHandler(e) {
+    const tipoSelect = document.getElementById('tipo');
+    const unidadesInput = document.getElementById('UnidadesSobrantes');
+    
+    if (!tipoSelect || !unidadesInput) return;
+    
+    const tipoSeleccionado = parseInt(tipoSelect.value) || 0;
+    const unidades = parseInt(unidadesInput.value) || 0;
+    
+    if (unidades > tipoSeleccionado) {
+        e.preventDefault();
+        alert('Por favor, corrige los errores antes de enviar el formulario.');
+    }
+}
+
+// Inicializar en DOMContentLoaded (carga inicial)
+document.addEventListener('DOMContentLoaded', initializeUnidadesValidation);
+
+// Inicializar cuando se carga contenido via AJAX
+document.addEventListener('contentLoaded', initializeUnidadesValidation);
+
+// También inicializar inmediatamente si el DOM ya está listo
+if (document.readyState === 'loading') {
+    // El DOM aún se está cargando, esperar a DOMContentLoaded
+} else {
+    // El DOM ya está listo, inicializar inmediatamente
+    initializeUnidadesValidation();
+}
+</script>

@@ -1,0 +1,51 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .btn-info{
+        border: 0;
+        color: #fff;
+        background-color: rgb(13, 110, 253);
+    }
+    .btn-info:hover{
+        color: #fff;
+        background-color: rgb(8, 69, 160);
+    }
+</style>
+<div class="container mt-4">
+    <h2 class="mb-3">Detalles de compra #{{ compra.Id_Compra }}</h2>
+
+    <table class="table table-bordered table-striped shadow-sm">
+        <thead class="table-dark">
+            <tr>
+                <th>Producto</th>
+                <th>Cantidad</th>
+                <th>Precio Unitario</th>
+                <th>Subtotal</th>
+                <th>Descuento</th>
+                <th>Total c/ Descuento</th>
+                <th>Total c/ IVA</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for detalle in detalles %}
+            <tr>
+                <td>{{ detalle.Producto }}</td>
+                <td>{{ detalle.Cantidad }}</td>
+                <td>C${{ detalle.PrecioAntDes }}</td>
+                <td>C${{ detalle.TotalAntDes }}</td>
+                <td>C${{ detalle.DescuentoTotal }}</td>
+                <td>C${{ detalle.TotalConDes }}</td>
+                <td>C${{ detalle.TotalConIva }}</td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center">No hay detalles registrados para esta compra</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <a href="{{ url_for('ver_compras') }}" class="btn btn-secondary">⬅️ Volver a Compras</a>
+</div>
+{% endblock %}

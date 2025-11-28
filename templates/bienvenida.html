@@ -1,0 +1,89 @@
+
+{% extends 'base.html' %}
+
+{% block styles %}
+<!-- CSS de bienvenida ya se carga con preload en base.html -->
+{% endblock %}
+
+{% block content %}
+<div id="bienvenida-content">
+  <div class="form-container_bienvenida">
+    <div class="slider">
+        <button class="notification-btn{% if alertas_stock %} pulse{% endif %}" onclick="showStockAlert();">
+            <i class="bi bi-bell"></i>
+        </button>
+        {% if alertas_stock %}
+        <div id="stock-alert-overlay" class="stock-alert-overlay shadow show" style="display: none;">
+            <button type="button" class="close-alert"
+                onclick="hideStockAlert();">&times;</button>
+            <h5><i class="bi bi-exclamation-triangle-fill"></i> Stock bajo</h5>
+            <div class="scrollable-list">
+                <ul class="mb-0">
+                    {% for paquete in alertas_stock %}
+                    <li><strong>{{ paquete.Descripcion }}</strong>: quedan <h9 style="color: red;">{{ paquete.Inventario }}</h9></li>
+                    {% endfor %}
+                    
+                </ul>
+            </div>
+        </div>
+        {% else %}
+        <div id="stock-alert-overlay" class="stock-alert-overlay shadow" style="display: none;">
+            <button type="button" class="close-alert"
+                onclick="hideStockAlert();">&times;</button>
+            <h5><i class="bi bi-bell-fill"></i> No hay productos con stock bajo</h5>
+        </div>
+        {% endif %}
+        <div class="list">
+            <div class="item uno">
+                <img src="static/images/1.webp" alt="">
+            </div>
+            <div class="item dos">
+                <img src="static/images/2.webp" alt="">
+            </div>
+            <div class="item tres">
+                <img src="static/images/3.webp" alt="">
+            </div>
+            <div class="item cuatro">
+                <img src="static/images/4.webp" alt="">
+            </div>
+        </div>
+        <div class="texto">
+            <h1>Bienvenido a MiniBodega</h1>
+            <p>¡Tu tienda de confianza para productos frescos y de calidad!</p>
+            <p>Explora nuestros productos, realiza tus compras y disfruta de una experiencia única.</p>
+        </div>
+        <div class="buttons">
+            <button id="prev"><</button>    
+            <button id="next">></button>
+        </div>
+        <ul class="dots">
+            <li class="active"></li>
+            <li></li>
+            <li></li>
+            <li></li>
+        </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+function showStockAlert() {
+  const overlay = document.getElementById('stock-alert-overlay');
+  overlay.classList.remove('hide');
+  overlay.classList.add('show');
+}
+
+function hideStockAlert() {
+    const overlay = document.getElementById('stock-alert-overlay');
+    overlay.classList.remove('show');
+    overlay.classList.add('hide');
+
+    // Remover display: none después de la animación
+    setTimeout(() => {
+        overlay.style.display = 'none';
+        overlay.classList.remove('hide');
+    }, 500); // 500ms = duración de la animación
+}
+</script>
+
+{% endblock %}

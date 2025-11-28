@@ -1,0 +1,413 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .card {
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+    .btn {
+        border: none;
+    }
+    .card-text {
+        padding: 0;
+        font-size: 0.9rem;
+    }
+    .card-footer {
+        background-color: #f8f9fa;
+        border-top: 1px solid #e9ecef;
+        padding: 0.75rem 1.25rem;
+    }
+    .card-footer .btn {
+        transition: all 0.2s ease-in-out;
+        transform: scale(1) translateX(0);
+    }
+    .card-footer .btn:hover {
+        transform: scale(1.1);
+    }
+    .card-footer .btn.det:hover{
+        transform: scale(1.05) translateX(5px);
+    }
+
+    .NombreEmpleado {
+        font-family: Georgia, 'Times New Roman', Times, serif;
+        font-size: 1.5rem;
+        font-weight: 600;
+        color: black;
+        margin-bottom: 20px;
+        text-align: center;
+    }
+
+    .card:hover {
+        transform: translateY(-2px) scale(1.02);
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1) !important;
+    }
+
+    .position-absolute.bottom-0.end-0 .btn {
+        transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    }
+
+    .position-absolute.bottom-0.end-0 .btn:hover {
+        transform: scale(1.1);
+    }
+</style>
+
+<div class="container-fluid px-4" style="padding-bottom: 5rem !important;">
+    <h2 class="text-center text-primary pag-titulo">Lista de Empleados</h2>
+
+    <!-- Cuadro de búsqueda -->
+    <form method="get" action="{{ url_for('ver_empleados') }}" class="row g-2 mb-4">
+        <div class="d-flex justify-content-between gap-2 mb-3">
+            <div class="col-md-6" style="width: 90%;">
+                <input type="text" class="form-control" name="busqueda" placeholder="Buscar por Nombres, Apellidos o Dirección"
+                    value="{{ busqueda }}">
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-primary">Buscar</button>
+            </div>
+        </div>
+        {% if busqueda %}
+        <div class="col-auto">
+            <a href="{{ url_for('ver_empleados') }}" class="btn btn-secondary">Ver Todos</a>
+        </div>
+        {% endif %}
+    </form>
+
+    <!-- Botón agregar empleado -->
+    <div class="mb-3">
+        <a href="{{ url_for('crear_empleado') }}" class="btn btn-success">
+            <i class="bi bi-person-plus"></i> Agregar Empleado
+        </a>
+    </div>
+
+    <!-- Tarjetas de empleados -->
+    <div class="row g-3">
+        {% for emp in empleados %}
+        <div class="col-md-6 col-12">
+            <div class="card shadow-sm">
+            <div class="card-body d-flex justify-content-between align-items-start">
+                <div class="flex-grow-1">
+                    <div class="row">
+                        <div style="display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 25px; margin-bottom: 15px;">
+                            <h5 class="NombreEmpleado" style="padding-top: 15px;">{{ emp.Nombres }} {{ emp.Apellidos }}</h5>
+                            <p class="card-text-edad" style="padding-top: 0; font-weight: bold; margin-bottom: 15px; font-size: 1.55rem; color: #0f0e30cc;">{{ emp.Edad }} años</p>
+                            <!-- <p class="card-text mb-1"><strong>Fecha de Nacimiento:</strong> {{ emp.FechaDeNacimiento }}</p>
+                            
+                            <p class="card-text mb-1"><strong>Fecha de Contrato:</strong> {{ emp.FechaDeContrato }}</p>
+                            <p class="card-text mb-1"><strong>Fecha de Fin de Contrato:</strong>
+                                {% if emp.FechaDeFinContrato %}
+                                {{ emp.FechaDeFinContrato }}
+                                {% else %}
+                                No Especificada
+                                {% endif %}
+                            </p> -->
+                        </div>
+                        <div>
+                            <!-- <p class="card-text mb-1"><strong>Dirección:</strong> {{ emp.Direccion }}</p> -->
+                            <p class="card-text mb-1"><strong>Supervisor:</strong>
+                                {% if emp.NombreSupervisor and emp.ApellidoSupervisor %}
+                                {{ emp.NombreSupervisor }} {{ emp.ApellidoSupervisor }}
+                                {% else %}
+                                Nadie
+                                {% endif %}
+                            </p>
+                            <p class="card-text mb-1"><strong>Estado:</strong>
+                                {% if emp.Estado == 'Activo' %}
+                                <span style="font-weight:600; color: green; text-shadow: 0 0 17px;">Activo ✅</span>
+                                {% else %}
+                                <span style="font-weight:600; color: red;">Inactivo ❌</span>
+                                {% endif %}
+                            </p>
+                        </div>
+                        <div>
+                            <p class="card-text mb-1"><strong>Número de Cédula:</strong> {{ emp.NumCedula }}</p>
+                            <!-- <p class="card-text mb-1"><strong>Estado Civil:</strong> {{ emp.EstadoCivil }}</p> -->
+                            <p class="card-text mb-1"><strong>Sexo:</strong> {{ emp.Sexo }}</p>
+                        </div>
+                        <!-- <div class="col-md-3 col-sm-6">
+                            <p class="card-text mb-1"><strong>Número INSS:</strong> {{ emp.NumInss }}</p>
+                            <p class="card-text mb-1"><strong>RUC:</strong> {{ emp.RUC }}</p>
+                            <p class="card-text mb-0"><strong>Salario Base:</strong> {{ emp.SalarioBase }}</p>
+                        </div> -->
+                    </div>
+                </div>
+            </div>
+            <div class="card-footer">
+                <div style="display: flex; flex-direction: row; align-items: center;">
+                    <div class="d-flex flex-grow-1 gap-1" style="justify-content: space-evenly;">
+                        <a href="{{ url_for('editar_empleado', id=emp.Id_Empleado) }}" class="btn btn-sm d-flex align-items-center justify-content-center" title="Editar empleado" style="padding: 0; width: 50px; height: 50px;">
+                            <i style="background-image: url('/static/Iconos_paq/editar_cn.png'); background-size: contain; background-repeat: no-repeat; width: 35px; height: 35px; display: inline-block;"></i>
+                        </a>
+                        <a href="{{ url_for('ver_nomina', id=emp.Id_Empleado) }}" class="btn btn-sm d-flex align-items-center justify-content-center" title="Ver Nómina" style="padding: 0; width: 50px; height: 50px;">
+                            <i style="background-image: url('/static/Iconos_paq/detalles_cn.png'); background-size: contain; background-repeat: no-repeat; width: 35px; height: 35px; display: inline-block;"></i>
+                        </a>
+                        <a href="{{ url_for('crear_nota', id=emp.Id_Empleado) }}" class="btn btn-sm d-flex align-items-center justify-content-center" title="Agregar Nota" style="padding: 0; width: 50px; height: 50px;">
+                            <i style="background-image: url('/static/Iconos_paq/notas_cn.png'); background-size:contain; background-repeat: no-repeat; width: 35px; height: 35px; display: inline-block;"></i>
+                        </a>
+                    </div>
+                        <a class="btn det btn-sm d-flex align-items-center justify-content-center" title="Mas Detalles" style="width: 40px; height: 40px; border: 0; padding: 0;" data-bs-toggle="modal" data-bs-target="#modalEmpleadoDetalles" data-nombres="{{ emp.Nombres }}" 
+                        data-apellidos="{{ emp.Apellidos }}" 
+                        data-edad="{{ emp.Edad }}" 
+                        data-fecha-nacimiento="{{ emp.FechaDeNacimiento }}" 
+                        data-fecha-contrato="{{ emp.FechaDeContrato }}" 
+                        data-fecha-fin="{{ emp.FechaDeFinContrato }}" 
+                        data-direccion="{{ emp.Direccion }}" 
+                        data-supervisor-nombre="{{ emp.NombreSupervisor }}" 
+                        data-supervisor-apellido="{{ emp.ApellidoSupervisor }}" 
+                        data-estado="{{ emp.Estado }}" 
+                        data-cedula="{{ emp.NumCedula }}" 
+                        data-estado-civil="{{ emp.EstadoCivil }}" 
+                        data-sexo="{{ emp.Sexo }}" 
+                        data-inss="{{ emp.NumInss }}" 
+                        data-ruc="{{ emp.RUC }}" 
+                        data-salario="{{ emp.SalarioBase }}">
+                            <i style="background-image: url('/static/Iconos_paq/flechaD.png'); background-size: contain; background-repeat: no-repeat; width: 25px; height: 25px; display: inline-block;"></i>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+
+{% endblock %}
+
+
+{% block modals %}
+<style>
+    * {
+        font-family: Georgia, 'Times New Roman', Times, serif;
+    }
+    .btn-close {
+        background-color: transparent;
+        border: none;
+        font-size: 1.5rem;
+        cursor: pointer;
+        transition: all 0.2s ease-in-out;
+    }
+    .btn-close:hover {
+        transform: scale(1.1);
+    }
+
+    .modal.fade{
+        z-index: 1050;
+    }
+    .modal-empleado-detalles .modal-content {
+        border: none;
+        border-radius: 20px;
+        box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
+        overflow: hidden;
+    }
+
+    .modal-empleado-detalles .modal-header {
+        background: linear-gradient(84deg, #ff0000, #920000);
+        color: white;
+        border-bottom: none;
+        padding: 2rem 2rem 1.5rem;
+        position: relative;
+    }
+
+    .modal-empleado-detalles .modal-header::before {
+        content: '';
+        position: absolute;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: linear-gradient(85deg, #940000, #740000);
+        opacity: 0.9;
+    }
+
+    .modal-empleado-detalles .modal-title {
+        font-weight: 600;
+        font-size: 1.5rem;
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal-empleado-detalles .btn-close {
+        filter: invert(1);
+        position: relative;
+        z-index: 1;
+    }
+
+    .modal-empleado-detalles .modal-body {
+        padding: 2rem;
+        background: #f8f9fa;
+    }
+
+    .empleado-info-section {
+        background: white;
+        border-radius: 15px;
+        padding: 1.5rem;
+        margin-bottom: 1rem;
+        box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05);
+        border: 1px solid rgba(0, 123, 255, 0.1);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+    }
+
+    .empleado-info-section:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+    }
+
+    .empleado-nombre-principal {
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        font-size: 1.8rem;
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 0.5rem;
+        text-align: center;
+    }
+
+    .empleado-edad-principal {
+        font-size: 1.2rem;
+        color: #4f4f50;
+        font-weight: 600;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+
+    .info-label {
+        font-weight: 600;
+        color: #495057;
+        margin-bottom: 0.25rem;
+        font-size: 0.9rem;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .info-value {
+        color: #212529;
+        font-size: 1rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .estado-activo {
+        color: #28a745 !important;
+        font-weight: 600;
+        text-shadow: 0 0 10px rgba(40, 167, 69, 0.3);
+    }
+
+    .estado-inactivo {
+        color: #dc3545 !important;
+        font-weight: 600;
+    }
+
+
+</style>
+
+<div class="modal fade modal-empleado-detalles" id="modalEmpleadoDetalles" tabindex="-1" aria-labelledby="modalEmpleadoLabel" aria-hidden="true">
+    <div class="modal-dialog modal-lg modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalEmpleadoLabel">
+                    <i class="bi bi-person-circle me-2"></i> Detalles del Empleado
+                </h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body" id="modalEmpleadoBody">
+                <!-- contenido se poblará aquí -->
+            </div>
+            
+        </div>
+    </div>
+</div>
+
+
+<script>
+function initModalEmpleadoDetalles() {
+    const modal = document.getElementById('modalEmpleadoDetalles');
+    if (!modal) return; // Si no existe el modal en la página, salir
+    
+    modal.addEventListener('show.bs.modal', function (event) {
+        const button = event.relatedTarget;
+        const nombres = button.getAttribute('data-nombres');
+        const apellidos = button.getAttribute('data-apellidos');
+        const edad = button.getAttribute('data-edad');
+        const fechaNacimiento = button.getAttribute('data-fecha-nacimiento');
+        const fechaContrato = button.getAttribute('data-fecha-contrato');
+        const fechaFin = button.getAttribute('data-fecha-fin');
+        const direccion = button.getAttribute('data-direccion');
+        const supervisorNombre = button.getAttribute('data-supervisor-nombre');
+        const supervisorApellido = button.getAttribute('data-supervisor-apellido');
+        const estado = button.getAttribute('data-estado');
+        const cedula = button.getAttribute('data-cedula');
+        const estadoCivil = button.getAttribute('data-estado-civil');
+        const sexo = button.getAttribute('data-sexo');
+        const inss = button.getAttribute('data-inss');
+        const ruc = button.getAttribute('data-ruc');
+        const salario = button.getAttribute('data-salario');
+
+        const body = document.getElementById('modalEmpleadoBody');
+        body.innerHTML = `
+            <div class="empleado-info-section">
+                <h5 class="empleado-nombre-principal" style="text-align: center; font-family: Georgia, 'Times New Roman', Times, serif;">
+                    <i class="bi bi-person-fill me-2"></i>${nombres} ${apellidos}
+                </h5>
+                <p class="empleado-edad-principal">
+                    <i class="bi bi-calendar-event me-1"></i>${edad} años
+                </p>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="empleado-info-section">
+                        <div class="info-label"><i class="bi bi-calendar me-1"></i>Información Personal</div>
+                        <div class="info-value"><strong>Fecha de Nacimiento:</strong> ${fechaNacimiento}</div>
+                        <div class="info-value"><strong>Estado Civil:</strong> ${estadoCivil}</div>
+                        <div class="info-value"><strong>Sexo:</strong> ${sexo}</div>
+                        <div class="info-value"><strong>Número de Cédula:</strong> ${cedula}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="empleado-info-section">
+                        <div class="info-label"><i class="bi bi-briefcase me-1"></i>Información Laboral</div>
+                        <div class="info-value"><strong>Fecha de Contrato:</strong> ${fechaContrato}</div>
+                        <div class="info-value"><strong>Fecha de Fin:</strong> ${(fechaFin && fechaFin !== 'None' && fechaFin.trim() !== '') ? fechaFin : '<span style="color:red; text-shadow:0 0 18px; font-weight:bold;">No especificada</span>'}</div>
+                        <div class="info-value"><strong>Supervisor:</strong> ${supervisorNombre && supervisorApellido ? supervisorNombre + ' ' + supervisorApellido : "<span style='color:red; text-shadow:0 0 18px; font-weight:bold;'>Nadie<span/>"}</div>
+                        <div class="info-value"><strong>Estado:</strong> ${estado === 'Activo' ? '<span class="estado-activo" style="color:green; text-shadow:0 0 18px; font-weight:bold;">Activo ✅</span>' : '<span class="estado-inactivo" style="color:red; text-shadow:0 0 18px; font-weight:bold;">Inactivo ❌</span>'}</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-6">
+                    <div class="empleado-info-section">
+                        <div class="info-label"><i class="bi bi-geo-alt me-1"></i>Ubicación</div>
+                        <div class="info-value"><strong>Dirección:</strong> ${direccion}</div>
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="empleado-info-section">
+                        <div class="info-label"><i class="bi bi-cash-stack me-1"></i>Información Financiera</div>
+                        <div class="info-value"><strong>Número INSS:</strong> ${inss}</div>
+                        <div class="info-value"><strong>RUC:</strong> ${ruc}</div>
+                        <div class="info-value"><strong>Salario Base:</strong> ${salario}</div>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+}
+
+// Ejecutar al cargar la página normalmente
+document.addEventListener('DOMContentLoaded', function() {
+    if (window.location.pathname.includes('empleados')) {
+        initModalEmpleadoDetalles();
+    }
+});
+
+// Ejecutar después de carga AJAX
+window.addEventListener('contentLoaded', function(event) {
+    if (event.detail.url.includes('empleados')) {
+        setTimeout(() => {
+            console.log('Inicializando modal después de AJAX');
+            initModalEmpleadoDetalles();
+        }, 200);
+    }
+});
+</script>
+{% endblock %}

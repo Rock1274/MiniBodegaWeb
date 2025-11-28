@@ -1,0 +1,1698 @@
+body, html {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    height: 100%;
+    margin: 0;
+    padding: 0;
+}
+
+.h5_Ver {
+    font-size: 30px;
+}
+.btn-close.white {
+    filter: invert(1) grayscale(1) brightness(2);
+}
+
+.all {
+    background-image: linear-gradient(to bottom, #000000dc 0.5%, transparent 100%); 
+    width: 100%;
+    height: 100%;
+    transition: all 2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar {
+    border-radius: 0 7px 7px 0;
+    position: fixed;
+    top: 0;
+    height: 100vh;
+    width: 230px;
+    background-color: #a00005;
+    color: white;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    overflow-x: hidden;
+    transition: transform 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 10;
+    box-shadow: 10px 7px 20px rgba(0, 0, 0, 0.781);
+    /* Optimizar rendimiento */
+    transform: translateZ(0);
+    backface-visibility: hidden;
+    will-change: transform, width;
+}
+
+
+
+.sidebar.collapsed h2 {
+    justify-content: center;
+    padding: 5px;
+    opacity: 1;
+    width: auto;
+    margin: 0;
+}
+
+.sidebar.collapsed .sidebar-title {
+    display: none;
+}
+
+.sidebar.collapsed #menu {
+    opacity: 1;
+    width: auto;
+    margin: 0;
+}
+input, select, textarea, button, .btn, div {
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+.sidebar .div-botonesSB a {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px;
+    color: black;
+    text-decoration: none;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 0.9rem;
+    font-weight: 1500;
+    transition: all 0.2s ease;
+    grid-template-columns: 40px 1fr;
+    border-radius: 7px;
+    margin: 1px 2px;
+}
+.sidebar h2 {
+    display: flex;
+    align-items: center;
+    justify-content: space-evenly;
+    gap: 8px;
+    margin: 0;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-weight: 1500;
+    font-size: 1.5rem;
+    padding: 5px 5px 5px 0;
+    opacity: 1;
+}
+
+.botones {
+    color: #000000;
+    transition: all 1.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+.botones.activo {
+    background: linear-gradient(90deg, #af0006 0%, #85090d 100%);
+    color: #ffffff;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+.botones:hover {
+    transform: translateY(-2px);
+}
+
+.logout:hover {
+    transform: translateY(-2px) translateX(2px);
+    transition: all 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.sidebar-title {
+    transition: transform 0.3s ease-in-out;
+    opacity: 1;
+    white-space: nowrap;
+    overflow: hidden;
+}
+
+
+.sidebar-title:hover {
+    transform: scale(1.03);
+}
+
+#menu {
+    transition: all 0.2s ease-in-out;
+    margin: 5px 0 5px 0;
+    height: 36px;
+    width: 36px;
+    will-change: transform;
+}
+.btn_Menu_Bienvenida{
+    margin: 10px 5px;
+    background: linear-gradient(35deg, #c7242a 0%, #7c0206 100%);    
+    border-radius: 7px;
+    padding: 5px;
+    box-shadow: 5px 5px 10px rgba(0, 0, 0, 0.363);
+    transition: all 0.3s ease;
+}
+
+.div-botonesSB {
+    padding: 5px 0;
+    display: flex;
+    flex-direction: column;
+    background: rgb(255, 255, 255);
+    height: 90%;
+    border-radius: 7px;
+    margin: 0 5px;
+}
+
+.botones {
+    margin: 0 5px;
+}
+.botones:hover img {
+    transform: rotate(8deg) scale(1.1) translateX(-2px);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.logout:hover img {
+    transform: rotate(-8deg) scale(1.1);
+    transition: transform 0.15s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content {
+    margin-top: 0;
+    margin-right: 0 !important;
+    position: relative;
+    min-height: 15px;
+    box-sizing: border-box;
+    overflow-x: hidden;
+    max-width: 100vw;
+    padding: 0;
+    z-index: 9;
+    backface-visibility: hidden;
+    will-change: margin-left, width;
+}
+
+.sidebar.collapsed .botones:hover{
+    transform: translateY(-3px) !important;
+}
+
+.sidebar.collapsed {
+    width: 70px;
+    box-shadow: 5px 0 25px rgba(0, 0, 0, 0);
+}
+.sidebar.collapsed .sidebar-title {
+    display: none;
+}
+.sidebar.collapsed a {
+    justify-content: center;
+    padding: 12px 0;
+}
+
+.sidebar.collapsed ~ .content {
+    margin-left: 70px !important;
+    width: calc(100% - 70px) !important;
+    overflow-x: hidden;
+    max-width: 100vw;
+    margin-right: 0 !important;
+    padding: 0;
+    transition: margin-left 0.2s cubic-bezier(0.4, 0, 0.2, 1), width 0.2s cubic-bezier(0.4, 0, 0.2, 1) !important;
+    will-change: margin-left, width;
+}
+.sidebar ~ .content {
+    margin-left: 70px !important;
+    width: calc(100% - 70px);
+    overflow-x: hidden;
+    max-width: 100vw;
+    margin-right: 0 !important;
+    padding: 0;
+    transition: margin-left 0.3s cubic-bezier(0.4, 0, 0.2, 1), width 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+
+.sidebar.collapsed a span {
+    opacity: 0;
+    width: 0;
+    overflow: hidden;
+    margin: 0;
+    padding: 0;
+}
+
+.sidebar a img {
+    min-width: 45px;
+    max-width: 45px;
+    padding-left: 10px;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: transform;
+}
+
+.sidebar a span {
+    margin-left: 10px;
+    white-space: nowrap;
+    overflow: hidden;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 1;
+    will-change: opacity, width;
+}
+
+.sidebar-footer {
+    margin-top: 20px;
+    padding: 10px 10px 2em;
+    text-align: center;
+}
+
+.sidebar-footer img {
+    width: 150px;
+    height: auto;
+    transition: all 0.3s ease;
+}
+.sidebar.collapsed .sidebar-footer img {
+    width: 40px;
+}
+
+/* Overlay para móviles cuando el sidebar está abierto */
+.sidebar-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    z-index: 900;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s cubic-bezier(0.4, 0, 0.2, 1), visibility 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    will-change: opacity, visibility;
+}
+
+.sidebar-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+#Filtros.form-select {
+    max-width: 25vw !important; 
+    width: 25 !important;
+}
+#confirmLogoutModal {
+    z-index: 1000 !important;
+}
+/* Media query para tablets y dispositivos medianos (hasta 912px) */
+@media (max-width: 912px) {
+    .sidebar {
+        width: 100%;
+        max-width: 350px;
+        height: 100%;
+        z-index: 999;
+        transform: translateX(0);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+        will-change: transform;
+        box-shadow: 10px 7px 20px rgba(0, 0, 0, 0);
+    }
+
+    .sidebar.open {
+        transform: translateX(-100%);
+    }
+
+    .sidebar a {
+        padding: 12px 0 12px 6%;
+        font-size: 1.1em;
+    }
+
+    .sidebar a img {
+        min-width: 50px;
+        max-width: 50px;
+    }
+
+    .sidebar h2 {
+        justify-content: flex-start;
+        padding: 0 0 0 20px;
+        font-size: 2em;
+    }
+
+    .sidebar-footer img {
+        width: 120px;
+    }
+
+    /* Contenido principal */
+    .content, .sidebar.collapsed ~ .content {
+        margin-left: 0px !important;
+        padding: 0;
+        width: 100%;
+    }
+
+    .sidebar ~ .content {
+        margin-left: 0 !important;
+        width: 100%;
+        overflow-x: hidden;
+        max-width: 100vw;
+        margin-right: 0 !important;
+        padding: 0;
+        will-change: margin-left, width;
+    }
+
+    /* Ajustes para tablas */
+    .table-responsive {
+        font-size: 0.9em;
+    }
+
+    .table th, .table td {
+        padding: 0.5rem 0.3rem;
+    }
+
+    /* Ajustes para formularios */
+    .form-control {
+        font-size: 0.95em;
+    }
+
+    /* Ajustes para botones */
+    .btn {
+        font-size: 0.9em;
+        padding: 0.5rem 1rem;
+    }
+
+    /* Ajustes para contenedores */
+    .container {
+        padding-left: 15px;
+        padding-right: 15px;
+    }
+
+
+
+    h2 {
+        font-size: 2em;
+    }
+
+    /* Mostrar botón toggle en tablets */
+    .toggle-button {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        z-index: 10 !important;
+        background: #f40008;
+        border: none;
+        padding: 5px 10px 10px 10px;
+        border-radius: 5px;
+        font-size: 2em;
+        color: rgb(0, 0, 0);
+    }
+
+    /* Modal personalizado para móviles */
+    .modal-dialog.modal-personalizado {
+        margin: 30% 0 0 0;
+    }
+
+}
+
+/* Media query para móviles (hasta 768px) */
+@media (max-width: 768px) {
+    .btn_Menu_Bienvenida{
+        margin-top: 10px;
+    }
+    .sidebar {
+        width: 100%;
+        max-width: 430px;
+        height: 100%;
+        z-index: 999;
+        transform: translateX(0);
+        transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    p,h1{
+        text-align: center;
+        padding-top: 30px;
+    }
+    h1{
+        font-size: 4em !important;
+        padding-bottom: 50px;
+    }
+
+    .sidebar.open {
+        transform: translateX(-100%);
+        justify-content: center;
+    }
+
+    .sidebar a {
+        padding: 15px 0 15px 8%;
+    }
+
+    .sidebar a img {
+        min-width: 60px;
+        max-width: 60px;
+    }
+
+    .sidebar a span {
+        text-align: right;
+    }
+
+    .botones a {
+        width: 45px;
+        height: 45px;
+    }
+
+    #menu {
+        margin-left: 10px;
+    }
+
+
+    .sidebar h2 {
+        justify-content: flex-start;
+        padding: 0 0 0 20px;
+        font-size: 2em;
+    }
+
+    .sidebar.collapsed a {
+        padding: 10px;
+    }
+
+    .sidebar-footer img {
+        width: 100px;
+    }
+
+    .toggle-button {
+        display: block;
+        position: fixed;
+        top: 10px;
+        left: 10px;
+        background: #f40008;
+        border: none;
+        padding: 10px 10px 10px 5px;
+        border-radius: 5px;
+        font-size: 1.5em;
+    }
+
+    /* Ajustes adicionales para móviles */
+    .table-responsive {
+        font-size: 0.8em;
+    }
+
+    .table th, .table td {
+        padding: 0.3rem 0.2rem;
+    }
+
+    .btn {
+        font-size: 0.85em;
+        padding: 0.4rem 0.8rem;
+    }
+
+    .container {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+
+    /* Estilos para vista previa de imágenes */
+    #image-preview {
+        max-height: 150px !important;
+    }
+
+
+    .flex-wrap{
+        flex-direction: column;
+    }
+
+    #Filtros.form-select {
+        max-width: 75vw !important;
+        width: 75vw !important;
+    }
+    .select2-container--bootstrap4 .select2-dropdown.showing {
+        height: 136px !important; 
+    }
+
+}
+
+/* Media query para dispositivos muy pequeños (hasta 480px) */
+@media (max-width: 480px) {
+    .sidebar {
+        max-width: 100%;
+    }
+
+    .sidebar a {
+        padding: 12px 0 12px 5%;
+        font-size: 1em;
+    }
+
+    .sidebar a img {
+        min-width: 45px;
+        max-width: 45px;
+    }
+
+
+    .table-responsive {
+        font-size: 0.75em;
+    }
+
+    .btn {
+        font-size: 0.8em;
+        padding: 0.3rem 0.6rem;
+    }
+
+    .toggle-button {
+        background: #f40008a6;
+        padding: 10px 10px 10px 2.5px;
+        font-size: 1.2em;
+    }
+
+    /* Estilos para vista previa de imágenes */
+    #image-preview {
+        max-height: 120px !important;
+    }
+    
+
+
+
+}
+
+.modal.fade.show{
+    background: #00000080 !important;
+}
+
+/* Animación del modal */
+.modal.fade .modal-dialog {
+    transform: scale(0) !important;
+    opacity: 0;
+    transition: transform 0.5s ease, opacity 0.7s ease !important;
+}
+.modal.fade.show .modal-dialog {
+    transform: scale(1) !important;
+    opacity: 1;
+}
+
+/* Estilos para vista previa de imágenes, en Edición y Creación de Paquetes */
+#preview-container {
+    transition: all 0.3s ease;
+}
+
+#preview-container .card {
+    border: 2px solid #e9ecef;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    overflow: hidden;
+}
+
+#preview-container .card-header {
+    border-bottom: 1px solid #dee2e6;
+    font-weight: 600;
+}
+
+#image-preview {
+    border-radius: 8px;
+    filter: drop-shadow(0 2px 6px rgba(0,0,0,0.2));
+    transition: transform 0.2s ease;
+}
+
+.img-fluid{
+    transition: transform 0.2s ease;
+}
+
+#image-preview:hover, .img-fluid:hover {
+    transform: scale(1.05) translateY(-5px);
+    cursor: pointer;
+}
+
+/*----------------------------------------------------------*/
+
+.container .mt-5{
+    margin-top: 0 !important;
+    
+}
+
+.mt-5{
+    padding: 1.5rem .5rem !important;
+}
+
+
+/* Prevenir scroll horizontal durante animaciones del sidebar */
+body {
+    overflow-x: hidden;
+    width: 100%;
+}
+
+
+/* Optimizar imágenes del sidebar */
+.sidebar img {
+    /* Evitar repaints innecesarios */
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: optimize-contrast;
+    /* Preparar para transformaciones */
+    will-change: transform;
+}
+
+/* Ajustes específicos para contenedores */
+.container {
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+
+/* Ajustes para el grid de tarjetas */
+.row {
+    margin-left: 0;
+    margin-right: 0;
+    max-width: 100%;
+}
+
+.col {
+    max-width: 100%;
+    overflow: hidden;
+}
+
+/* Asegurar que no haya scroll horizontal en ningún estado */
+.sidebar ~ .content {
+    overflow-x: hidden;
+    max-width: 100vw;
+}
+
+/* Estilos específicos para el contenido de bienvenida */
+.content .form-container_bienvenida {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+.content .slider {
+    width: 100%;
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+}
+
+
+
+/* Prevenir cambios bruscos en el contenido */
+.content > * {
+    margin-right: 0;
+}
+
+/* Eliminar cualquier espacio residual */
+.content * {
+    max-width: 100%;
+}
+
+/* Asegurar que los contenedores no tengan márgenes innecesarios */
+.container-fluid,
+.container {
+    margin-right: 0;
+    padding-right: 0;
+    max-width: 100%;
+}
+.container-fluid {
+    padding-top: 1rem !important;
+    padding-bottom: 12em !important;
+}
+
+/* Asegurar que las transiciones del sidebar sean suaves */
+.sidebar {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Transiciones suaves para elementos internos del content */
+.content > * {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content .container {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content .row {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.content .col {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Asegurar que las cards mantengan sus transiciones */
+.content .zoom-card {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+/* Transiciones mejoradas para el sidebar */
+.sidebar {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+
+/* Selectores aún más específicos para sobrescribir Bootstrap */
+body .content .pag-titulo,
+body .content h2.pag-titulo,
+body .content h3.pag-titulo,
+body .content h4.pag-titulo,
+body .content h5.pag-titulo,
+body .content h6.pag-titulo {
+    color: inherit;
+    font-family: Georgia, 'Times New Roman', Times, serif !important;
+    color: #fff !important; 
+    font-size: 4em !important;
+    padding-top: 0px;
+    text-shadow: #000000a2 0px 4px 3px;
+    margin: 60px 0;
+}
+.label-filtros{
+    color: #ffffff;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    font-size: 1.2em;
+    text-shadow: #000000a2 0px 4px 3px;
+}
+
+
+/* Modal personalizado global y centrado seguro, adaptado al contenido */
+.modal-dialog.modal-personalizado {
+    margin: auto !important;
+    max-width: 430px;
+    width: 95vw;
+}
+
+@media (max-width: 576px) {
+    .modal-dialog.modal-personalizado {
+        max-width: 98vw;
+    }
+}
+
+.modal-content {
+    border-radius: 18px;
+    box-shadow: 0 8px 32px 0 rgba(0,0,0,0.25);
+    border: none;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal-body {
+    padding: 2rem 1.5rem;
+}
+
+body .modal {
+    z-index: 10 !important;
+    padding: 0 !important;
+}
+body .modal-backdrop {
+    z-index: 8 !important;
+}
+
+.modal-dialog {
+    margin: auto !important;
+}
+.btn-primary{
+    border: none !important;
+    padding: 8px 20px !important;
+    background: linear-gradient(to bottom, #666666 0%, #333333 100%) !important;
+}
+.btn-primary:hover .icono-busqueda{
+    transform: scale(1.1);
+}
+.icono-x{
+    display: inline-block;
+    background-image: url('../static/Iconos_paq/X.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 15px;
+    height: 15px;
+    vertical-align: middle;
+    transition: transform 0.3s ease;
+}
+.icono-busqueda{
+    display: inline-block;
+    background-image: url('../static/Iconos_paq/lupa.png');
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    width: 20px;
+    height: 20px;
+    vertical-align: middle;
+    transition: transform 0.3s ease;
+}
+
+
+@keyframes reveal{
+    from {
+        opacity: 0;
+        transform: translateY(50px) scale(.5);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0) scale(1);
+    }
+}
+
+.all {
+
+    overflow-y: hidden;
+}
+.content {
+    height: 100vh;
+    overflow-y: auto; /* o simplemente elimina esta línea */
+}
+
+/* scroll personalizado */
+.content::-webkit-scrollbar {
+    width: 10px;              /* Ancho de la barra */
+    background: #f1f1f1de;      /* Color de fondo */
+}
+
+.content::-webkit-scrollbar-thumb {
+    background: #888;         /* Color del "thumb" */
+    border-radius: 0;       /* Bordes redondeados */
+}
+
+.content::-webkit-scrollbar-thumb:hover {
+    background: #555;         /* Color al pasar el mouse */
+}
+
+
+.col .card {
+    max-width: 100%;
+    overflow: visible;
+    animation: reveal linear both;
+    animation-timeline: view();
+    animation-range: entry -50% cover 37%;
+}
+
+.card.zoom-card {
+  overflow: hidden !important;
+  background: var(--bg) !important;
+  transition: background 0.5s 0.2s !important;
+}
+.card.zoom-card:hover {
+  background: #7b1f1f !important;
+  transition: background 0.8s 0.2s !important;
+}
+
+.img-bg-anim {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.img-bg-anim::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background: #a10606;
+  opacity: 1;
+  transition: transform 0.8s cubic-bezier(0.4,0,0.2,1);
+  /* Usar la imagen como máscara */
+  -webkit-mask-image: var(--img-url);
+  mask-image: var(--img-url);
+  -webkit-mask-size: contain;
+  mask-size: contain;
+  -webkit-mask-repeat: no-repeat;
+  mask-repeat: no-repeat;
+  -webkit-mask-position: center;
+  mask-position: center;
+  transform: scale(1);
+  pointer-events: none;
+}
+
+.card-body, .card-footer{
+    z-index: 2;
+}
+
+.card.zoom-card:hover .img-bg-anim::before {
+  /* Escala MUY grande para cubrir todo el card */
+  transform: scale(15);
+  transition: transform 1.5s cubic-bezier(0.4,0,0.2,1);
+}
+
+.card-img-top {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  height: 300px;
+  object-fit: contain;
+  pointer-events: none;
+}
+
+.card .card-title.text-success {
+    color: #000 !important;
+}
+.card-text, .card-title{
+    transition: transform 0.5s ease, color 0.5s ease, text-shadow 0.5s ease;
+}
+.card.zoom-card:hover .text-success{
+    color: rgb(255, 255, 255) !important;
+    text-shadow: #000000 0px 4px 3px;
+}
+
+.card.zoom-card:hover .card-text{
+    transform: translateY(17px);
+}
+
+.card.zoom-card:hover .card-title{
+    transform: translateY(38px) scale(1.1);
+}
+.card.zoom-card:hover .card-text .info-mostrable .info-paq{
+    color: #ffffff !important;
+}
+
+
+
+.info-mostrable{
+    justify-content: center;
+}
+
+
+.info-paq {
+    display: inline-block;
+    transition: transform 0.3s ease-in;
+}
+
+.info-mostrable .info-paq:hover{
+    transform: scale(1.15);
+    text-shadow: #000000 0px 2px 6px;
+}
+
+
+.iconos{
+    display: inline-block;
+    width: 36px;
+    height: 36px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    transition: background-image 0.5s;
+}
+.icono-paq {
+    background-image: url('../static/Iconos_paq/paquete_sc.png');
+}
+.icono-tipo {
+    background-image: url('../static/Iconos_paq/tipo_sc.png');
+}
+.card.zoom-card:hover .icono-paq {
+    background-image: url('../static/Iconos_paq/paquete_cc.png');
+}
+.card.zoom-card:hover .icono-tipo {
+    background-image: url('../static/Iconos_paq/tipo_cc.png');
+}
+
+
+.info-paq{
+    align-items: center;
+    align-content: center;
+    transition: all 0.5s ease;
+}
+
+
+
+
+.info-mostrable{
+    display: flex;
+    flex-direction: row;
+    gap: 1.1em;
+}
+
+.info-interactiva{
+    justify-content: center;
+    display: flex;
+    flex-direction: row;
+    gap: 50px;
+    padding: 30px 0px 0px 0px;
+}
+
+.info-interactiva .info-paq{
+    color: #ffffff00;
+    transition: all 0.5s ease;
+}
+
+.info-mostrable:has(.Inventario.info-paq:hover) .info-interactiva .info-paq {
+    color: #fff;
+    transition: color 0.3s;
+}
+
+.contenedor-botones-ED {
+    display: flex;
+    flex-direction: column;
+    gap: 25px;
+    position: absolute;
+    top: 35%;
+    right: 40px;
+    z-index: 20;
+    padding: 0.3em 0;
+    transition: transform 0.3s 0.1s cubic-bezier(0.4,0,0.2,1);
+}
+
+.card.zoom-card:hover .contenedor-botones-ED {
+    transform: translateY(40px) translateX(-4px) scale(1.15);
+}
+
+.botones-ED{
+    display: inline-block;
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+    vertical-align: middle;
+    transform: scale(1);
+    transition: background-image 1s ease-in-out, transform 0.3s cubic-bezier(0.4,0,0.2,1);
+}
+.contenedor-botones-ED:hover .botones-ED{
+    transform: scale(1.1);
+}
+
+.editar_image{
+    background-image: url('../static/Iconos_paq/EditarCC.svg');
+    width: 60px;
+    height: 60px;
+    
+}
+
+.card.zoom-card:hover .editar_image{
+    background-image: url('../static/Iconos_paq/EditarSC.svg');
+}
+
+.eliminar_image{
+    background-image: url('../static/Iconos_paq/eliminar_cc.png');
+    width: 55px;
+    height: 55px;
+    right: 13px;
+}
+
+.card.zoom-card:hover .eliminar_image{
+    background-image: url('../static/Iconos_paq/eliminar_sc.png');
+}
+
+.card-text, .card-title{
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+.card-title{
+    font-size: 2.5em;
+}
+
+
+
+/* Para el select de filtros */
+.input-busqueda:focus, .select-filtros:focus, textarea:focus,
+.select2-container--bootstrap4 .select2-selection--single:focus,
+.select2-container--bootstrap4 .select2-selection--single {
+    border: none !important;
+    outline: none !important;
+    box-shadow: none !important;
+    border-color: inherit !important;
+}
+.form-select.select-filtros{
+    border: none !important;
+    background-image: url('/static/Iconos_paq/filtro.png') !important;
+    background-repeat: no-repeat;
+    background-position: right 0.75rem center;
+    background-size: 1.6em 1.6em !important;
+    z-index: 100 !important;
+}
+/* Oculta la flecha por defecto de Select2 */
+.select2-container--bootstrap4 .select2-selection--single .select2-selection__arrow {
+    display: none !important;
+}
+
+/* Agrega tu propio icono como background */
+.select2-container--bootstrap4 .select2-selection--single {
+    position: relative;
+    padding-right: 2.5em;
+}
+
+.select2-container--bootstrap4 .select2-selection--single::after {
+    content: "";
+    position: absolute;
+    top: 50%;
+    right: 0.75rem;
+    transform: translateY(-50%) scale(1);
+    width: 1.6em;
+    height: 1.6em;
+    background-image: url('/static/Iconos_paq/filtro.png');
+    background-repeat: no-repeat;
+    background-size: contain;
+    background-position: center;
+    transition: transform 0.2s ease;
+    pointer-events: none;
+}
+
+.select2-container--bootstrap4:hover .select2-selection--single::after {
+    transform: translateY(-50%) scale(1.05);
+}
+
+.select2-container--bootstrap4 .select2-dropdown {
+    opacity: 0;
+    height: 0;
+    transition: opacity 0.7s cubic-bezier(0.4,0,0.2,1), height 0.5s cubic-bezier(0.4,0,0.2,1);
+    interpolate-size: allow-keywords;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+.select2-container--bootstrap4 .select2-dropdown.showing {
+    opacity: 1;
+    height: auto; /* Ajusta este valor al máximo esperado de tu dropdown */
+    pointer-events: auto;
+}
+
+
+/* Busqueda recientes */
+.dropdown-menu {
+    position: absolute;
+    left: 0;
+    top: 100%;
+    width: 100%;
+    background: #ffffff;
+    border: 1px solid #d1d1d1;
+    border-top: none;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.08);
+    z-index: 9999;
+    height: 0;
+    opacity: 0;
+    transition: height 0.4s cubic-bezier(0.4,0,0.2,1), opacity 0.5s;
+    border-radius: 0 0 8px 8px;
+    font-size: 1em;
+    padding: 0;
+    overflow: hidden;
+    display: block;
+}
+.dropdown-menu.show {
+    opacity: 1;
+}
+#busquedaRecientes .dropdown-item {
+    padding: 12px 24px;
+    cursor: pointer;
+    color: #000000;
+    background: none;
+    border: none;
+    width: 100%;
+    text-align: left;
+    transition: background 0.2s;
+    font-size: 1.1em;
+}
+#busquedaRecientes .dropdown-item:hover,
+#busquedaRecientes .dropdown-item.active {
+    background: #f0f0f0;
+    color: #007bff;
+}
+
+.input-busqueda{
+    padding: 0;
+    border-radius: none;
+    border: none;
+    width: 100%;
+}
+.input-busqueda-container{
+    width: 100%;
+    background-color: #ffffff;
+    align-items: center;
+    position: relative;
+    border-top-left-radius: 8px;
+    border-bottom-left-radius: 8px;
+    padding: 7px 10px;
+}
+
+.resultado-busqueda-container{
+    width: 60%;
+    margin: auto;
+    margin-bottom: 55px;
+}
+.resultado-busqueda{
+    margin: 0 0 35px 0;
+    font-size: 2em;
+    font-style: italic;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    color: #ffffff;
+    text-shadow: #000000 0px 4px 3px;
+}
+
+/* Utilidades para tablas con scroll X y elipsis en celdas */
+.table-overflow-x {
+    overflow-x: auto !important;
+}
+
+/* Mantener celdas en una sola línea dentro de tablas específicas */
+.table-ellipsis th,
+.table-ellipsis td {
+    white-space: nowrap;
+}
+
+/* Elemento truncado con puntos suspensivos cuando supera el ancho máximo */
+.truncate {
+    display: inline-block;
+    max-width: 220px; /* Ajusta si necesitas más/menos ancho */
+    overflow: hidden;
+    text-overflow: ellipsis;
+    vertical-align: bottom;
+}
+
+/* Permitir ver el texto completo al enfocar con teclado */
+.truncate:focus {
+    outline: none;
+}
+
+/* ===== ESTILOS MODERNOS PARA MENSAJES DE ERROR ===== */
+
+/* Overlay de fondo para el error */
+.error-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+    opacity: 0;
+    visibility: hidden;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.error-overlay.show {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Tarjeta principal del error */
+.error-card {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    padding: 2rem;
+    max-width: 450px;
+    width: 90%;
+    text-align: center;
+    transform: scale(0.8) translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+}
+
+.error-overlay.show .error-card {
+    transform: scale(1) translateY(0);
+}
+
+/* Icono de error */
+.error-icon {
+    margin-bottom: 1.5rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.error-icon svg {
+    filter: drop-shadow(0 4px 8px rgba(239, 68, 68, 0.3));
+    animation: errorPulse 2s ease-in-out infinite;
+}
+
+@keyframes errorPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+/* Contenido del error */
+.error-content {
+    color: #1f2937;
+}
+
+.error-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+    color: #ef4444;
+    font-family: 'Montserrat', sans-serif;
+    letter-spacing: -0.025em;
+}
+
+.error-message {
+    font-size: 1rem;
+    color: #6b7280;
+    margin-bottom: 2rem;
+    line-height: 1.6;
+    font-family: 'Montserrat', sans-serif;
+}
+
+/* Botones de acción */
+.error-actions {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.error-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.error-btn-primary {
+    background: linear-gradient(135deg, #ef4444 0%, #dc2626 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(239, 68, 68, 0.4);
+}
+
+.error-btn-primary:hover {
+    background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px 0 rgba(239, 68, 68, 0.5);
+}
+
+.error-btn-secondary {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.error-btn-secondary:hover {
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+}
+
+.error-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.error-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Animación de entrada para el icono */
+.error-icon svg {
+    animation: errorIconEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+@keyframes errorIconEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .error-card {
+        padding: 1.5rem;
+        margin: 1rem;
+        border-radius: 16px;
+    }
+    
+    .error-title {
+        font-size: 1.25rem;
+    }
+    
+    .error-message {
+        font-size: 0.9rem;
+        margin-bottom: 1.5rem;
+    }
+    
+    .error-actions {
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .error-btn {
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+    }
+}
+
+/* Animación de salida */
+.error-overlay:not(.show) .error-card {
+    transform: scale(0.8) translateY(20px);
+    opacity: 0;
+}
+
+/* Efecto de vibración sutil en el error */
+.error-card {
+    animation: subtleShake 0.5s ease-in-out;
+}
+
+@keyframes subtleShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-2px); }
+    75% { transform: translateX(2px); }
+}
+
+/* ===== ESTILOS MODERNOS PARA MODAL DE CERRAR SESIÓN ===== */
+
+/* Modal moderno personalizado */
+.modern-modal {
+    background: linear-gradient(135deg, #ffffff 0%, #f8fafc 100%);
+    border-radius: 20px;
+    box-shadow: 
+        0 25px 50px -12px rgba(0, 0, 0, 0.25),
+        0 0 0 1px rgba(255, 255, 255, 0.1);
+    border: 1px solid rgba(239, 68, 68, 0.1);
+    overflow: hidden;
+    transform: scale(0.9) translateY(20px);
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.modal.show .modern-modal {
+    transform: scale(1) translateY(0);
+}
+
+/* Header del modal moderno */
+.modern-modal-header {
+    background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%);
+    border-bottom: 1px solid rgba(239, 68, 68, 0.2);
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    position: relative;
+}
+
+.modal-icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 48px;
+    height: 48px;
+    background: rgba(239, 68, 68, 0.1);
+    border-radius: 12px;
+    animation: iconPulse 2s ease-in-out infinite;
+}
+
+.modal-icon svg {
+    filter: drop-shadow(0 2px 4px rgba(239, 68, 68, 0.3));
+}
+
+@keyframes iconPulse {
+    0%, 100% {
+        transform: scale(1);
+    }
+    50% {
+        transform: scale(1.05);
+    }
+}
+
+.modern-modal-title {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: #dc2626;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    letter-spacing: -0.025em;
+    margin: 0;
+    flex: 1;
+}
+
+.modern-btn-close {
+    position: absolute;
+    top: 1rem;
+    right: 1rem;
+    width: 32px;
+    height: 32px;
+    background: rgba(255, 255, 255, 0.8);
+    border: none;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: #6b7280;
+}
+
+.modern-btn-close:hover {
+    background: rgba(255, 255, 255, 1);
+    color: #374151;
+    transform: scale(1.1);
+}
+
+.modern-btn-close svg {
+    transition: transform 0.2s ease;
+}
+
+.modern-btn-close:hover svg {
+    transform: rotate(90deg);
+}
+
+/* Body del modal moderno */
+.modern-modal-body {
+    padding: 2rem;
+    text-align: center;
+}
+
+.modal-message {
+    font-size: 1.125rem;
+    font-weight: 600;
+    color: #1f2937;
+    margin-bottom: 0.75rem;
+    font-family: 'Montserrat', sans-serif;
+}
+
+.modal-submessage {
+    font-size: 0.875rem;
+    color: #6b7280;
+    margin-bottom: 0;
+    line-height: 1.6;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+}
+
+/* Footer del modal moderno */
+.modern-modal-footer {
+    padding: 1.5rem 2rem 2rem;
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    border-top: 1px solid rgba(239, 68, 68, 0.1);
+    background: rgba(254, 242, 242, 0.3);
+}
+
+/* Botones modernos */
+.modern-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.75rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    font-family: Georgia, 'Times New Roman', Times, serif;
+    border: none;
+    cursor: pointer;
+    transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    text-decoration: none;
+    min-width: 140px;
+    justify-content: center;
+}
+
+.modern-btn-secondary {
+    background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+    color: #374151;
+    border: 1px solid #d1d5db;
+}
+
+.modern-btn-secondary:hover {
+    background: linear-gradient(135deg, #e5e7eb 0%, #d1d5db 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px 0 rgba(0, 0, 0, 0.1);
+    color: #374151;
+}
+
+.modern-btn-danger {
+    background: linear-gradient(135deg, #d63e3e 0%, #d30d0d 100%);
+    color: white;
+    box-shadow: 0 4px 14px 0 rgba(245, 158, 11, 0.4);
+}
+
+.modern-btn-danger:hover {
+    background: linear-gradient(135deg, #8f2c2c 0%, #b40a0a 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px 0 rgba(255, 80, 80, 0.438);
+    color: white;
+}
+
+.modern-btn svg {
+    transition: transform 0.2s ease;
+}
+
+.modern-btn:hover svg {
+    transform: scale(1.1);
+}
+
+/* Animación de entrada para el modal */
+.modern-modal {
+    animation: modalEntrance 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+@keyframes modalEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.8) translateY(30px);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) translateY(0);
+    }
+}
+
+/* Animación de entrada para el icono */
+.modal-icon {
+    animation: modalIconEntrance 0.6s cubic-bezier(0.4, 0, 0.2, 1) 0.2s both;
+}
+
+@keyframes modalIconEntrance {
+    0% {
+        opacity: 0;
+        transform: scale(0.5) rotate(-10deg);
+    }
+    100% {
+        opacity: 1;
+        transform: scale(1) rotate(0deg);
+    }
+}
+
+/* Responsive para móviles */
+@media (max-width: 768px) {
+    .modern-modal-header {
+        padding: 1.25rem 1.5rem;
+    }
+    
+    .modern-modal-title {
+        font-size: 1.25rem;
+    }
+    
+    .modal-icon {
+        width: 40px;
+        height: 40px;
+    }
+    
+    .modern-modal-body {
+        padding: 1.5rem;
+    }
+    
+    .modal-message {
+        font-size: 1rem;
+    }
+    
+    .modal-submessage {
+        font-size: 0.8rem;
+    }
+    
+    .modern-modal-footer {
+        padding: 1.25rem 1.5rem 1.5rem;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+    
+    .modern-btn {
+        width: 100%;
+        padding: 0.875rem 1.25rem;
+    }
+}
+
+/* Efecto de vibración sutil en el modal */
+.modern-modal {
+    animation: modalSubtleShake 0.5s ease-in-out;
+}
+
+@keyframes modalSubtleShake {
+    0%, 100% { transform: translateX(0); }
+    25% { transform: translateX(-1px); }
+    75% { transform: translateX(1px); }
+}
+
+/* Mejorar el backdrop del modal */
+.modal-backdrop {
+    background: rgba(0, 0, 0, 0.6);
+    backdrop-filter: blur(8px);
+}
+
