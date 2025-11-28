@@ -1,26 +1,31 @@
-FROM python:3.11-slim
+# Imagen base completa de Python 3.11
+FROM python:3.11
 
-ENV DEBIAN_FRONTEND=noninteractive
-
-# Dependencias sistema + ODBC Driver
-RUN apt-get update \
- && apt-get install -y --no-install-recommends curl gnupg lsb-release apt-transport-https ca-certificates build-essential unixodbc-dev \
- && curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg \
- && echo "deb [arch=amd64 signed-by=/etc/apt/trusted.gpg.d/microsoft.gpg] https://packages.microsoft.com/debian/12/prod $(lsb_release -cs) main" > /etc/apt/sources.list.d/mssql-release.list \
- && apt-get update \
- && ACCEPT_EULA=Y apt-get install -y msodbcsql18 \
- && apt-get clean \
- && rm -rf /var/lib/apt/lists/*
-
-# Carpeta de trabajo
+# Establecer directorio de trabajo
 WORKDIR /app
-COPY . /app
 
-# Instalar librerías Python
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Copiar requirements
+COPY requirements.txt .
 
-# Puerto inyectado por Render
-ENV PORT=10000
+# Instalar dependencias del sistema necesarias para pyodbc
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+       unixodbc-dev \
+       curl \
+       gnupg \
+       lsb-release \
+       apt-transport-https \
+       ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 
-CMD ["sh", "-c", "gunicorn app:app -b 0.0.0.0:${PORT}"]
+# Instalar dependencias de Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar todo el proyecto
+COPY . .
+
+# Exponer el puerto (ajusta si tu app Flask u otra usa otro puerto)
+EXPOSE 5000
+
+# Comando por defecto
+CMD ["python", "app.py"]
