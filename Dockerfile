@@ -1,21 +1,32 @@
-FROM python:3.10-slim
 
-# Instala dependencias necesarias
-RUN apt-get update && apt-get install -y curl gnupg2 apt-transport-https lsb-release \
-    && curl -fsSL https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /usr/share/keyrings/microsoft.gpg \
-    && echo "deb [arch=amd64 signed-by=/usr/share/keyrings/microsoft.gpg] https://packages.microsoft.com/repos/microsoft-debian-bullseye-prod bullseye main" \
-       > /etc/apt/sources.list.d/mssql-release.list \
-    && apt-get update \
-    && ACCEPT_EULA=Y apt-get install -y msodbcsql17 unixodbc-dev \
-    && apt-get clean \
-    && rm -rf /var/lib/apt/lists/*
+FROM python:3.11
 
 WORKDIR /app
-COPY . /app
 
-RUN pip install --upgrade pip
-RUN pip install -r requirements.txt
+# Copiar requirements
+COPY requirements.txt .
 
-EXPOSE 8000
+# Instalar dependencias de sistema y ODBC Driver 17
+RUN apt-get update && apt-get install -y --no-install-recommends \
+        curl \
+        gnupg2 \
+        apt-transport-https \
+        ca-certificates \
+        unixodbc-dev \
+        build-essential \
+    && curl https://packages.microsoft.com/keys/microsoft.asc | gpg --dearmor > /etc/apt/trusted.gpg.d/microsoft.gpg \
+    && curl https://packages.microsoft.com/config/ubuntu/22.04/prod.list > /etc/apt/sources.list.d/mssql-release.list \
+    && apt-get update \
+    && ACCEPT_EULA=Y apt-get install -y msodbcsql17 \
+    && rm -rf /var/lib/apt/lists/*
 
-CMD ["gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
+# Instalar dependencias de Python
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copiar la app
+COPY . .
+
+# Exponer puerto
+EXPOSE 5000
+
+CMD ["python", "app.py","gunicorn", "--bind", "0.0.0.0:8000", "app:app"]
