@@ -788,6 +788,7 @@ def editar_paquete(id):
         return render_template('Productos/editar_paquetes.html', paquete=paquete, archivos_disponibles=archivos_disponibles, timestamp=timestamp)
 
 
+
 #Detalle Venta
 @app.route('/detalles_ventas', methods=['GET', 'POST'])
 @login_requerido
@@ -861,12 +862,6 @@ def ver_detalles_ventas():
             paquetes_finales = int(request.form['dv_paquetes_finales'])
             unidades_finales = int(request.form['dv_unidades_finales'])
 
-            # Verificar que la venta existe
-            cursor.execute('SELECT Id_Venta FROM Venta WHERE Id_Venta = ? AND Papelera = 0', (id_venta,))
-            venta = cursor.fetchone()
-            if not venta:
-                raise ValueError('Venta no encontrada')
-
             # Obtener inventario actual del paquete
             cursor.execute('SELECT Inventario, TipoPaquete, PrecioVenta_Paq, Descripcion FROM Paquete WHERE Id_Paquete = ?', (id_paquete,))
             paquete = cursor.fetchone()
@@ -885,17 +880,9 @@ def ver_detalles_ventas():
 
             conn.commit()
 
-            # Actualizar inventario del paquete
-            cantidad_vendida = paquetes_finales * tipo_paquete + unidades_finales
-            nuevo_inventario = inventario_actual - cantidad_vendida
-            nuevo_paquetes_completos = nuevo_inventario // tipo_paquete
-            nuevo_unidades_sobrantes = nuevo_inventario % tipo_paquete
-            cursor.execute('UPDATE Paquete SET Inventario = ?, PaquetesCompletos = ?, UnidadesSobrantes = ? WHERE Id_Paquete = ?', (nuevo_inventario, nuevo_paquetes_completos, nuevo_unidades_sobrantes, id_paquete))
-            conn.commit()
-
             cursor.execute(
                 '''
-                SELECT TOP 1
+                SELECT TOP 1 
                     CantidadVendidaTotal,
                     PrecioUnitario,
                     Subtotal,
@@ -905,7 +892,7 @@ def ver_detalles_ventas():
                 FROM DetalleVenta
                 WHERE Papelera = 0
                 ORDER BY Id_DetalleVenta DESC;
-                '''
+            '''
             )
             detalle_insertado = cursor.fetchone()
 
@@ -917,44 +904,24 @@ def ver_detalles_ventas():
             id = detalle_insertado[5]
 
 
-            # Recargar toda la tabla con los datos actualizados de la BD
+            # Calcular cantidad vendida total, precio unitario y subtotal
             if is_htmx:
-                # Obtener todos los detalles de ventas actualizados
-                cursor.execute('''
-                    SELECT
-                        dv.Id_DetalleVenta,
-                        dv.Id_Venta,
-                        p.Descripcion AS DescripcionPaquete,
-                        dv.CantidadPaquetes,
-                        dv.CantidadUnidades,
-                        dv.CantidadVendidaTotal,
-                        dv.PrecioUnitario,
-                        dv.Subtotal
-                    FROM DetalleVenta dv
-                    JOIN Paquete p ON dv.Id_Paquete = p.Id_Paquete
-                    WHERE dv.Papelera = 0
-                    ORDER BY dv.Id_Venta ASC
-                ''')
-                detalles_actualizados = cursor.fetchall()
-
-                # Generar HTML completo del tbody
-                tbody_html = ''
-                for detalle in detalles_actualizados:
-                    tbody_html += f'''
-                    <tr>
-                        <td class="text-center">{detalle[1]}</td>
-                        <td>{detalle[2]}</td>
-                        <td class="text-center">{detalle[3]}</td>
-                        <td class="text-center">{detalle[4]}</td>
-                        <td class="text-center">{detalle[5]:.2f}</td>
-                        <td class="text-end">C${detalle[6]:.2f}</td>
-                        <td class="text-end">C${detalle[7]:.2f}</td>
-                        <td class="text-center">
-                            <a href="/editar_detalle_venta/{detalle[0]}" class="btn btn-sm btn-warning">Editar</a>
-                        </td>
-                    </tr>
-                    '''
-                return tbody_html
+                # Devolver HTML de la nueva fila
+                nueva_fila_html = f'''
+                <tr>
+                    <td class="text-center">{id_venta}</td>
+                    <td>{descripcion_paquete}</td>
+                    <td class="text-center">{cantidad_paquetes}</td>
+                    <td class="text-center">{cantidad_unidades}</td>
+                    <td class="text-center">{cantidad_vendida_total:.2f}</td>
+                    <td class="text-end">C${precio_unitario:.2f}</td>
+                    <td class="text-end">C${subtotal:.2f}</td>
+                    <td class="text-center">
+                        <a href="/editar_detalle_venta/{id}" class="btn btn-sm btn-warning">Editar</a>
+                    </td>
+                </tr>
+                '''
+                return nueva_fila_html
             else:
                 flash('Detalle de venta registrado correctamente.', 'success')
                 conn.close()
@@ -1117,13 +1084,6 @@ def editar_detalle_venta(id):
             id_paquete = int(request.form['paquete_id'])
             cantidad_paquetes = int(request.form['cantidad_paquetes'])
             cantidad_unidades = int(request.form['cantidad_unidades'])
-
-            # Verificar que la venta existe
-            cursor.execute('SELECT Id_Venta FROM Venta WHERE Id_Venta = ? AND Papelera = 0', (id_venta,))
-            venta = cursor.fetchone()
-            if not venta:
-                raise ValueError('Venta no encontrada')
-
             # Si quieres actualizar precio unitario y subtotal, también agregar aquí y en el form
 
             # Actualizamos solo los campos que sí están en DetalleVenta
@@ -1150,6 +1110,18 @@ def editar_detalle_venta(id):
         paquetes=paquetes,
         max_id_venta=max_id_venta)
 
+""" @app.route('/eliminar_detalle_venta/<int:id>', methods=['POST'])
+@login_requerido
+def eliminar_detalle_venta(id):
+    print(id)
+    conn = get_db_connection()
+    cursor = conn.cursor()
+    cursor.execute('DELETE FROM DetallesDeVentas WHERE Id_DetallesDeVentas = ?', (id,))
+    conn.commit()
+    conn.close()
+    return redirect(url_for('ver_detalles_ventas'))
+
+ """
 
 #Compras
 @app.route("/compras")
