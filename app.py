@@ -116,7 +116,7 @@ def get_db_connection():
 
         conn_str = (
             "DRIVER={ODBC Driver 17 for SQL Server};"
-            f"SERVER={server};"
+            f"SERVER={server},1433;"
             f"DATABASE={database};"
             f"UID={username};"
             f"PWD={password};"
