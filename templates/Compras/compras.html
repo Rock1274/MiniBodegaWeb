@@ -8,7 +8,6 @@
   <table class="table table-striped table-bordered">
       <thead>
           <tr>
-              <th>Compra</th>
               <th>Fecha</th>
               <th>Proveedor</th>
               <th>Total</th>
@@ -18,7 +17,6 @@
       <tbody>
           {% for compra in compras %}
           <tr>
-              <td>{{ compra[0] }}</td>
               <td>{{ compra[1] }}</td>
               <td>{{ compra[2] }}</td>
               <td>C${{ '%.2f'|format(compra[3]) }}</td>
